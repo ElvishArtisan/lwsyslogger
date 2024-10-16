@@ -1,82 +1,21 @@
 #!/bin/sh
-# postinst script for Rivendell
+# postinst script for lwsyslogger
 
 case "$1" in
     configure)
-      ldconfig
       /bin/systemctl daemon-reload
-      /usr/sbin/groupadd -r -g 150 rivendell
-      /usr/sbin/useradd -o -u 150 -g rivendell -s /bin/false -r -c "Rivendell radio automation system" -d /var/snd rivendell
-      /usr/sbin/groupadd -r -g 151 pypad
-      /usr/sbin/useradd -o -u 151 -g pypad -s /bin/false -r -c "Rivendell PyPAD scripts" -d /dev/null pypad
-      if test ! -e /var/snd ; then
-	  mkdir -p /var/snd
-	  chown rivendell:rivendell /var/snd
-	  chmod 775 /var/snd
+      /usr/sbin/groupadd -r -f lwsyslogger
+      /usr/sbin/useradd -r -f -g lwsyslogger -s /bin/false -r -c "lwsyslogger system"
+      if test ! -e /var/log/lwsyslogger ; then
+	  mkdir -p /var/log/lwsyslogger
+	  chown lwsyslogger:lwsyslogger /var/log/lwsyslogger
+	  chmod 770 /var/log/lwsyslogger
       fi
-      if test ! -d /etc/rivendell.d ; then
-	  mkdir -p /etc/rivendell.d
-	  chmod 775 /etc/rivendell.d
+      if test ! -e /etc/lwsyslogger.conf ; then
+	  cp /usr/share/lwsyslogger/lwsyslogger-sample.conf /etc/lwsyslogger.conf
       fi
-      if test ! -e /etc/rd.conf ; then
-	  cp /usr/share/rivendell/rd.conf-sample /etc/rivendell.d/rd-default.conf
-	  ln -s /etc/rivendell.d/rd-default.conf /etc/rd.conf
-      fi
-      if test ! -h /etc/rd.conf ; then
-	  mv /etc/rd.conf /etc/rivendell.d/rd-default.conf
-	  ln -s /etc/rivendell.d/rd-default.conf /etc/rd.conf
-      fi
-      if test ! -e /etc/profile.d/rivendell-env.sh ; then
-	 cp /usr/share/rivendell/rivendell-env.sh /etc/profile.d/
-      fi
-      #
-      # FIXME: Configure ALSA Here!
-      #
-      /usr/sbin/rddbmgr --modify
-      /bin/systemctl restart rivendell
-      /bin/systemctl enable rivendell
-      ln -f -s ../conf-available/rd-bin.conf /etc/apache2/conf-enabled/rd-bin.conf
-      ln -f -s ../mods-available/cgid.conf /etc/apache2/mods-enabled/cgid.conf
-      ln -f -s ../mods-available/cgid.load /etc/apache2/mods-enabled/cgid.load
-      chown rivendell:rivendell /var/www/rd-bin/rdxport.cgi
-      chmod 6755 /var/www/rd-bin/rdxport.cgi
-      /bin/systemctl restart apache2
-      /bin/systemctl enable apache2
-
-      if test -x /usr/bin/gtk-update-icon-cache ; then
-	  /usr/bin/gtk-update-icon-cache -f --quiet /usr/share/icons/hicolor
-      fi
-      if test ! -e /var/www/rd-bin/logos ; then
-	  mkdir -p /var/www/rd-bin/logos
-      fi
-      if test ! -f /var/www/rd-bin/logos/webget_logo.png ; then
-	  mkdir -p /var/www/rd-bin/logos
-	  cp -f /usr/share/rivendell/logos/webget_logo.png /var/www/rd-bin/logos/webget_logo.png
-      fi
-
-      mkdir -p /var/log/rivendell
-      chmod 750 /var/log/rivendell
-      chown root:syslog /var/log/rivendell
-      touch /var/log/rivendell/operations
-      chmod 640 /var/log/rivendell/operations
-      chown syslog:adm /var/log/rivendell/operations
-      touch /var/log/rivendell/debug
-      chmod 640 /var/log/rivendell/debug
-      chown syslog:adm /var/log/rivendell/debug
-      if test ! -e /etc/rsyslog.d/10-rivendell.conf ; then
-	  cp /usr/share/rivendell/syslog.conf-sample /etc/rsyslog.d/10-rivendell.conf
-      fi
-      /bin/systemctl restart rsyslog
-
-      if test -x /usr/bin/rdselect_helper ; then
-	  chown root:root /usr/bin/rdselect_helper
-	  chmod 4755 /usr/bin/rdselect_helper
-      fi
-
-      if test -x /var/www/rd-bin/webget.cgi ; then
-	 chown root:root /var/www/rd-bin/webget.cgi
-	 chmod 6755 /var/www/rd-bin/webget.cgi
-      fi
+      /bin/systemctl restart lwsyslogger
+      /bin/systemctl enable lwsyslogger
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for Rivendell
+# prerm script for lwsyslogger
 #
 # see: dh_installdeb(1)
 
@@ -19,8 +19,8 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-	/bin/systemctl stop rivendell
-	/bin/systemctl disable rivendell
+	/bin/systemctl stop lwsyslogger
+	/bin/systemctl disable lwsyslogger
     ;;
 
     failed-upgrade)

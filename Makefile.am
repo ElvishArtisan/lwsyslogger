@@ -44,13 +44,11 @@ rpm:	dist
 	rm $(HOME)/rpmbuild/SOURCES/lwsyslogger-$(VERSION).tar.gz
 
 EXTRA_DIST = autogen.sh\
-             CODINGSTYLE\
-             configure_build.sh\
              get_distro.pl\
              get_target.sh\
-             INSTALL-WINDOWS\
+             GFDL.txt\
              lwsyslogger.spec.in\
-             UPGRADING
+             PACKAGE_VERSION
 
 CLEANFILES = *~\
              *.buildinfo\

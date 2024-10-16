@@ -30,12 +30,10 @@ EXTRA_DIST = changelog\
              postinst\
              postrm\
              prerm\
-             rules\
-             rules.src
+             rules
 
 MAINTAINERCLEANFILES = changelog\
                        control\
                        control.src2\
                        Makefile\
-                       Makefile.in\
-                       rules
+                       Makefile.in

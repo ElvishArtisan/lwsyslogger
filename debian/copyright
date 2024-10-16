@@ -1,10 +1,10 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: rivendell
+Upstream-Name: lwsyslogger
 Upstream-Contact: fredg@paravelsystems.com
-Source: http://rivendellaudio.org/ftpdocs/rivendell/
+Source: https://github.com/ElvishArtisan/lwsyslogger
 
 Files: *
-Copyright: 2002-2021 Fred Gleason <fredg@paravelsystems.com>
+Copyright: 2024 Fred Gleason <fredg@paravelsystems.com>
 License: GPL-2
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License version 2 as
@@ -22,7 +22,7 @@ License: GPL-2
  Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
 
 Files: docs/*
-Copyright: 2002-2021 Fred Gleason <fredg@paravelsystems.com>
+Copyright: 2024 Fred Gleason <fredg@paravelsystems.com>
 License: GFDL-1.3
  Permission is granted to copy, distribute and/or modify this documentation
  under the terms of the GNU Free Documentation License, Version 1.3

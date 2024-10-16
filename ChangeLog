@@ -11,3 +11,5 @@
 2024-10-16 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed a bug in 'Message::facilityString()' that caused facility
 	values to be incorrectly calculated.
+2024-10-16 Fred Gleason <fredg@paravelsystems.com>
+	* Enabled the 'make deb' target.

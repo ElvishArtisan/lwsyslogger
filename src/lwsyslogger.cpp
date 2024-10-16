@@ -115,7 +115,7 @@ MainObject::MainObject(QObject *parent)
 void MainObject::messageReceivedData(Message *msg,const QHostAddress &from_addr)
 {
   printf("******************************************\n");
-  printf("%s\n",msg->dump().toUtf8().constData());
+  printf("%s",msg->dump().toUtf8().constData());
 }
 
 
