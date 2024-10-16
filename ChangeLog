@@ -15,4 +15,4 @@
 	* Enabled the 'make deb' target.
 2024-10-16 Fred Gleason <fredg@paravelsystems.com>
 	* Added startup sanity checks for LogRoot to lwsyslogger(8).
-	* Added code to drop root permissions at startup tp lwsyslogger(8).
+	* Added code to drop root permissions at startup to lwsyslogger(8).
