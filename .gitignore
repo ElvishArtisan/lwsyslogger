@@ -18,4 +18,6 @@ lwsyslogger.service
 Makefile
 Makefile.in
 missing
+moc_*
 helpers/docbook
+src/lwsyslogger
