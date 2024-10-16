@@ -176,12 +176,12 @@ AC_SUBST_FILE(GENERATED_XML_FILE_WARNING)
 GENERATED_XML_FILE_WARNING=$srcdir/helpers/xml_file_warning
 
 AC_CONFIG_FILES([lwsyslogger.spec \
+    conf/Makefile \
     debian/Makefile \
     debian/source/Makefile \
     Makefile \
     helpers/Makefile \
     src/Makefile \
-    conf/Makefile \
     docs/Makefile \
     systemd/Makefile \
     systemd/lwsyslogger.service \

@@ -36,4 +36,6 @@ EXTRA_DIST = changelog\
 MAINTAINERCLEANFILES = changelog\
                        control\
                        control.src2\
+                       Makefile\
+                       Makefile.in\
                        rules

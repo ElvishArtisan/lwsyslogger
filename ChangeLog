@@ -4,3 +4,5 @@
 	* Updated the README file.
 2024-10-16 Fred Gleason <fredg@paravelsystems.com>
 	* Renamed the project to 'lwsyslogger'.
+2024-10-16 Fred Gleason <fredg@paravelsystems.com>
+	* Added various derived files to the 'make maintainer' target.

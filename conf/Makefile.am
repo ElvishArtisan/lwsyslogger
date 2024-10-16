@@ -31,4 +31,5 @@ CLEANFILES = *~
 MAINTAINERCLEANFILES = *~\
                        aclocal.m4\
                        configure\
+                       Makefile\
                        Makefile.in

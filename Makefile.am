@@ -19,7 +19,8 @@
 ##
 ## Use automake to process this into a Makefile.in
 
-SUBDIRS = debian\
+SUBDIRS = conf\
+          debian\
           docs\
           helpers\
           src\
