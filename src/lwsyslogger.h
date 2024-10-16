@@ -1,4 +1,4 @@
-// lwlogger.h
+// lwsyslogger.h
 //
 // Simple syslog logger for Livewire sites
 //
@@ -18,8 +18,8 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#ifndef LWLOGGER_H
-#define LWLOGGER_H
+#ifndef LWSYSLOGGER_H
+#define LWSYSLOGGER_H
 
 #include <QList>
 #include <QObject>
@@ -31,12 +31,12 @@
 //
 // Defaults
 //
-#define DEFAULT_CONFIG_FILENAME "/etc/lwlogger.conf"
+#define DEFAULT_CONFIG_FILENAME "/etc/lwsyslogger.conf"
 
 //
 // Global RIPCD Definitions
 //
-#define LWLOGGER_USAGE "[--config=<filename>] [-d]\n\n"
+#define LWSYSLOGGER_USAGE "[--config=<filename>] [-d]\n\n"
 
 class MainObject : public QObject
 {
@@ -53,4 +53,4 @@ class MainObject : public QObject
 };
 
 
-#endif  // LWLOGGER_H
+#endif  // LWSYSLOGGER_H

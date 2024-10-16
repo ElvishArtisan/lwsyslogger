@@ -1,6 +1,6 @@
 ## Makefile.am
 ##
-## lwlogger(8) Makefile.am
+## lwsyslogger(8) Makefile.am
 ##
 ## (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 ##
@@ -27,20 +27,20 @@ MOC = @QT_MOC@
 moc_%.cpp:	%.h
 	$(MOC) $< -o $@
 
-sbin_PROGRAMS = lwlogger
+sbin_PROGRAMS = lwsyslogger
 
-dist_lwlogger_SOURCES = lwlogger.cpp lwlogger.h\
-                        message.cpp message.h\
-                        recv_factory.cpp recv_factory.h\
-                        recv_udp.cpp recv_udp.h\
-                        receiver.cpp receiver.h
+dist_lwsyslogger_SOURCES = lwsyslogger.cpp lwsyslogger.h\
+                           message.cpp message.h\
+                           recv_factory.cpp recv_factory.h\
+                           recv_udp.cpp recv_udp.h\
+                           receiver.cpp receiver.h
 
-nodist_lwlogger_SOURCES = moc_lwlogger.cpp\
-                          moc_recv_udp.cpp\
-                          moc_receiver.cpp
+nodist_lwsyslogger_SOURCES = moc_lwsyslogger.cpp\
+                             moc_recv_udp.cpp\
+                             moc_receiver.cpp
 
-lwlogger_LDADD = @QT5_CLI_LIBS@\
-                 @SWITCHYARD5_LIBS@
+lwsyslogger_LDADD = @QT5_CLI_LIBS@\
+                    @SWITCHYARD5_LIBS@
 
 CLEANFILES = *~\
              *.idb\

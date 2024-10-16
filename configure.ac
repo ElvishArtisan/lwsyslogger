@@ -1,6 +1,6 @@
 dnl configure.ac
 dnl
-dnl Autoconf configuration for lwlogger.
+dnl Autoconf configuration for lwsyslogger.
 dnl Use autoconf to process this into a configure script
 dnl
 dnl   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
@@ -19,7 +19,7 @@ dnl   License along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
 
-AC_INIT([lwlogger],m4_esyscmd(cat PACKAGE_VERSION))
+AC_INIT([lwsyslogger],m4_esyscmd(cat PACKAGE_VERSION))
 AM_INIT_AUTOMAKE([1.9 tar-pax])
 AC_SUBST(RPM_RELEASE,1)
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
@@ -84,7 +84,7 @@ case "$ar_distro_id" in
        DISTRO_FAMILY="|                       Distribution Family ... Debian    |"
        DISTRO_IS_DEBIANISH=yes
        DISTRO_NAME="|                         Distribution Name ... Debian    |"
-       AC_SUBST(DOC_PATH,"/usr/share/doc/lwlogger")
+       AC_SUBST(DOC_PATH,"/usr/share/doc/lwsyslogger")
      ;;
 
      raspbian)
@@ -92,7 +92,7 @@ case "$ar_distro_id" in
        DISTRO_FAMILY="|                       Distribution Family ... Debian    |"
        DISTRO_IS_DEBIANISH=yes
        DISTRO_NAME="|                  Distribution Name ... Raspberry Pi OS  |"
-       AC_SUBST(DOC_PATH,"/usr/share/doc/lwlogger")
+       AC_SUBST(DOC_PATH,"/usr/share/doc/lwsyslogger")
      ;;
 
      linuxmint)
@@ -100,7 +100,7 @@ case "$ar_distro_id" in
        DISTRO_FAMILY="|                       Distribution Family ... Debian    |"
        DISTRO_IS_DEBIANISH=yes
        DISTRO_NAME="|                         Distribution Name ... Linux Mint|"
-       AC_SUBST(DOC_PATH,"/usr/share/doc/lwlogger")
+       AC_SUBST(DOC_PATH,"/usr/share/doc/lwsyslogger")
      ;;
 
      ubuntu)
@@ -108,7 +108,7 @@ case "$ar_distro_id" in
        DISTRO_FAMILY="|                       Distribution Family ... Debian    |"
        DISTRO_IS_DEBIANISH=yes
        DISTRO_NAME="|                         Distribution Name ... Ubuntu    |"
-       AC_SUBST(DOC_PATH,"/usr/share/doc/lwlogger")
+       AC_SUBST(DOC_PATH,"/usr/share/doc/lwsyslogger")
      ;;
 
      centos|fedora|rhel|rocky)
@@ -126,13 +126,13 @@ case "$ar_distro_id" in
        if test $ar_distro_id = "rocky" ; then
          DISTRO_NAME="|                         Distribution Name ... Rocky     |"
        fi
-       AC_SUBST(DOC_PATH,"/usr/share/doc/lwlogger-$PACKAGE_VERSION")
+       AC_SUBST(DOC_PATH,"/usr/share/doc/lwsyslogger-$PACKAGE_VERSION")
        ;;
 
      *)
        AC_MSG_NOTICE([Distro is unknown])
        DISTRO_FAMILY="|                       Distribution Family ... Unknown   |"
-       AC_SUBST(DOC_PATH,"/usr/share/doc/lwlogger")
+       AC_SUBST(DOC_PATH,"/usr/share/doc/lwsyslogger")
      ;;
 esac
 
@@ -175,7 +175,7 @@ GENERATED_SCRIPT_FILE_WARNING=$srcdir/helpers/script_file_warning
 AC_SUBST_FILE(GENERATED_XML_FILE_WARNING)
 GENERATED_XML_FILE_WARNING=$srcdir/helpers/xml_file_warning
 
-AC_CONFIG_FILES([lwlogger.spec \
+AC_CONFIG_FILES([lwsyslogger.spec \
     debian/Makefile \
     debian/source/Makefile \
     Makefile \
@@ -184,7 +184,7 @@ AC_CONFIG_FILES([lwlogger.spec \
     conf/Makefile \
     docs/Makefile \
     systemd/Makefile \
-    systemd/lwlogger.service \
+    systemd/lwsyslogger.service \
     build_debs.sh \
     ])
 AC_OUTPUT()
@@ -196,7 +196,7 @@ chmod 755 build_debs.sh
 #
 AC_MSG_NOTICE()
 AC_MSG_NOTICE("|---------------------------------------------------------|")
-AC_MSG_NOTICE("|         *** LWLOGGER CONFIGURATION SUMMARY ***         |")
+AC_MSG_NOTICE("|        *** LWSYSLOGGER CONFIGURATION SUMMARY ***        |")
 AC_MSG_NOTICE("|---------------------------------------------------------|")
 AC_MSG_NOTICE("| Platform Information:                                   |")
 AC_MSG_NOTICE("$DISTRO_NAME")

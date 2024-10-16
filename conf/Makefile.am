@@ -19,13 +19,13 @@
 ## Use automake to process this into a Makefile.in
 
 install-exec-am:	
-	mkdir -p $(DESTDIR)/@prefix@/share/lwlogger
-	cp lwlogger-sample.conf $(DESTDIR)/@prefix@/share/lwlogger
+	mkdir -p $(DESTDIR)/@prefix@/share/lwsyslogger
+	cp lwsyslogger-sample.conf $(DESTDIR)/@prefix@/share/lwsyslogger
 
 uninstall:	
-	rm -f $(DESTDIR)/@prefix@/share/lwlogger/lwlogger-sample.conf
+	rm -f $(DESTDIR)/@prefix@/share/lwsyslogger/lwsyslogger-sample.conf
 
-EXTRA_DIST = lwlogger-sample.conf
+EXTRA_DIST = lwsyslogger-sample.conf
 
 CLEANFILES = *~
 MAINTAINERCLEANFILES = *~\

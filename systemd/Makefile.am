@@ -20,15 +20,15 @@
 
 install-exec-local:	
 	mkdir -p $(DESTDIR)/lib/systemd/system
-	cp rivendell.service $(DESTDIR)/lib/systemd/system/rivendell.service
+	cp lwsyslogger.service $(DESTDIR)/lib/systemd/system/lwsyslogger.service
 	./daemon-reload.sh
 
 uninstall-local:	
-	rm -f $(DESTDIR)/lib/systemd/system/rivendell.service
+	rm -f $(DESTDIR)/lib/systemd/system/lwsyslogger.service
 	./daemon-reload.sh
 
 EXTRA_DIST = daemon-reload.sh\
-             rivendell.service.in
+             lwsyslogger.service.in
 
 CLEANFILES = *~
 

@@ -1,4 +1,4 @@
-// lwlogger.cpp
+// lwsyslogger.cpp
 //
 // Simple syslog logger for Livewire sites
 //
@@ -26,7 +26,7 @@
 
 #include <sy5/sycmdswitch.h>
 
-#include "lwlogger.h"
+#include "lwsyslogger.h"
 #include "recv_factory.h"
 
 MainObject::MainObject(QObject *parent)
@@ -38,7 +38,7 @@ MainObject::MainObject(QObject *parent)
   //
   // Read Switches
   //
-  SyCmdSwitch *cmd=new SyCmdSwitch("lwlogger",VERSION,LWLOGGER_USAGE);
+  SyCmdSwitch *cmd=new SyCmdSwitch("lwsyslogger",VERSION,LWSYSLOGGER_USAGE);
   for(int i=0;i<cmd->keys();i++) {
     if(cmd->key(i)=="--config") {
       config_filename=cmd->value(i);
@@ -49,7 +49,7 @@ MainObject::MainObject(QObject *parent)
       cmd->setProcessed(i,true);
     }
     if(!cmd->processed(i)) {
-      fprintf(stderr,"lwlogger: unrecognized switch \"%s\"\n",
+      fprintf(stderr,"lwsyslogger: unrecognized switch \"%s\"\n",
 	      cmd->key(i).toUtf8().constData());
       exit(1);
     }
@@ -60,7 +60,7 @@ MainObject::MainObject(QObject *parent)
   //
   d_config=new SyProfile();
   if(!d_config->setSource(config_filename)) {
-    fprintf(stderr,"lwlogger: cannot open configuration file \"%s\"\n",
+    fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\"\n",
 	    config_filename.toUtf8().constData());
     exit(1);
   }
@@ -69,10 +69,10 @@ MainObject::MainObject(QObject *parent)
   // Syslog
   //
   if(debug) {
-    openlog("lwlogger",LOG_PERROR,LOG_SYSLOG);
+    openlog("lwsyslogger",LOG_PERROR,LOG_SYSLOG);
   }
   else {
-    openlog("lwlogger",0,LOG_SYSLOG);
+    openlog("lwsyslogger",0,LOG_SYSLOG);
   }
   
   //
@@ -87,19 +87,19 @@ MainObject::MainObject(QObject *parent)
     Receiver::typeFromString(d_config->stringValue(section,"Type",0,&ok));
   while(ok) {
     if(type==Receiver::TypeLast) {
-      fprintf(stderr,"lwlogger: unknown receiver type \"%s\"\n",
+      fprintf(stderr,"lwsyslogger: unknown receiver type \"%s\"\n",
 	      d_config->stringValue(section,"Type").toUtf8().constData());
       exit(1);
     }
     if((recv=ReceiverFactory(type,d_config,count,this))==NULL) {
-      fprintf(stderr,"lwlogger: failed to initialize receiver type \"%s\"\n",
+      fprintf(stderr,"lwsyslogger: failed to initialize receiver type \"%s\"\n",
 	      Receiver::typeString(type).toUtf8().constData());
       exit(1);
     }
     connect(recv,SIGNAL(messageReceived(Message *,const QHostAddress &)),
 	    this,SLOT(messageReceivedData(Message *,const QHostAddress &)));
     if(!recv->start(&err_msg)) {
-      fprintf(stderr,"lwlogger: failed to start %s [%s]\n",
+      fprintf(stderr,"lwsyslogger: failed to start %s [%s]\n",
 	      section.toUtf8().constData(),err_msg.toUtf8().constData());
       exit(1);
     }

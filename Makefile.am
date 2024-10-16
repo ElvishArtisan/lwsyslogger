@@ -1,6 +1,6 @@
 ## Makefile.am
 ##
-## Top level automake.am for lwlogger
+## Top level automake.am for lwsyslogger
 ##
 ##   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 ##
@@ -35,12 +35,12 @@ deb:	dist
 
 rpm:	dist
 	mkdir -p $(HOME)/rpmbuild/SOURCES
-	cp lwlogger-$(VERSION).tar.gz $(HOME)/rpmbuild/SOURCES/
-	$(RPMBUILD) -ba --target $(ARCH)-$(VENDOR)-linux lwlogger.spec
-	mv $(HOME)/rpmbuild/RPMS/$(ARCH)/lwlogger-*.rpm $(top_srcdir)/
-	mv $(HOME)/rpmbuild/RPMS/noarch/lwlogger-*.rpm $(top_srcdir)/
-	mv $(HOME)/rpmbuild/SRPMS/lwlogger-*.src.rpm $(top_srcdir)/
-	rm $(HOME)/rpmbuild/SOURCES/lwlogger-$(VERSION).tar.gz
+	cp lwsyslogger-$(VERSION).tar.gz $(HOME)/rpmbuild/SOURCES/
+	$(RPMBUILD) -ba --target $(ARCH)-$(VENDOR)-linux lwsyslogger.spec
+	mv $(HOME)/rpmbuild/RPMS/$(ARCH)/lwsyslogger-*.rpm $(top_srcdir)/
+	mv $(HOME)/rpmbuild/RPMS/noarch/lwsyslogger-*.rpm $(top_srcdir)/
+	mv $(HOME)/rpmbuild/SRPMS/lwsyslogger-*.src.rpm $(top_srcdir)/
+	rm $(HOME)/rpmbuild/SOURCES/lwsyslogger-$(VERSION).tar.gz
 
 EXTRA_DIST = autogen.sh\
              CODINGSTYLE\
@@ -48,9 +48,7 @@ EXTRA_DIST = autogen.sh\
              get_distro.pl\
              get_target.sh\
              INSTALL-WINDOWS\
-             lwlogger.ism\
-             lwlogger.pro\
-             lwlogger.spec.in\
+             lwsyslogger.spec.in\
              UPGRADING
 
 CLEANFILES = *~\
@@ -71,7 +69,7 @@ DISTCLEANFILES = *.spec\
                  config.guess\
                  config.sub\
                  ltmain.sh\
-                 lwlogger
+                 lwsyslogger
 
 MAINTAINERCLEANFILES = *~\
                        *.tar.gz\
@@ -88,4 +86,4 @@ MAINTAINERCLEANFILES = *~\
                        ltmain.sh\
                        missing\
                        mkinstalldirs\
-                       lwlogger.spec
+                       lwsyslogger.spec
