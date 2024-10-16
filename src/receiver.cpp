@@ -21,6 +21,7 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
+#include "proc_factory.h"
 #include "receiver.h"
 
 Receiver::Receiver(SyProfile *c,int recv_num,QObject *parent)
@@ -28,6 +29,64 @@ Receiver::Receiver(SyProfile *c,int recv_num,QObject *parent)
 {
   d_config=c;
   d_receiver_number=recv_num;
+
+  //
+  // Create Processor(s)
+  //
+  bool ok=false;
+  int count=0;
+  QString section=QString::asprintf("Receiver%d",1+recv_num);
+  QString param=QString::asprintf("Processor%dType",1+count);
+  Processor::Type type=
+    Processor::typeFromString(d_config->stringValue(section,param,0,&ok));
+  while(ok) {
+    if(type==Processor::TypeLast) {
+      exit(1);
+    }
+    addProcessor(type,count);
+    count++;
+    param=QString::asprintf("Processor%dType",1+count);
+    type=Processor::typeFromString(d_config->stringValue(section,param,0,&ok));
+  }
+}
+
+
+void Receiver::closeFiles()
+{
+  for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
+      it!=d_processors.end();it++) {
+    it.value()->closeFiles();
+  }
+}
+
+
+void Receiver::addProcessor(Processor::Type type,int proc_num)
+{
+  QString err_msg;
+  Processor *proc=
+    ProcessorFactory(type,config(),receiverNumber(),proc_num,this);
+  if(proc==NULL) {
+    fprintf(stderr,"lwsyslogger: failed to initialize processor type \"%s\"\n",
+	      Processor::typeString(type).toUtf8().constData());
+    exit(1);
+  }
+  if(!proc->start(&err_msg)) {
+    fprintf(stderr,
+	    "lwsyslogger: failed to start Receiver%d:%d processor [%s]\n",
+	    receiverNumber(),proc_num,err_msg.toUtf8().constData());
+    exit(1);
+  }
+  d_processors[proc_num]=proc;
+}
+
+
+void Receiver::processMessage(Message *msg,const QHostAddress &from_addr)
+{
+  //  emit messageReceived(msg,from_addr);
+  for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
+      it!=d_processors.end();it++) {
+    it.value()->processMessage(msg,from_addr);
+  }
 }
 
 

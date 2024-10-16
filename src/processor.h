@@ -1,9 +1,6 @@
-// receiver.h
+// processor.h
 //
-// Abstract base class for transport layer receivers.
-//
-// For basic concepts regarding  Syslog Transport Layer Protocols
-// see RFC 5424 Section 5)
+// Abstract base class for message processors.
 //
 //   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 //
@@ -21,43 +18,41 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#ifndef RECEIVER_H
-#define RECEIVER_H
+#ifndef PROCESSOR_H
+#define PROCESSOR_H
 
-#include <QMap>
+#include <QDir>
 #include <QObject>
 
 #include <sy5/syprofile.h>
 
 #include "message.h"
-#include "processor.h"
 
-class Receiver : public QObject
+class Processor : public QObject
 {
   Q_OBJECT
  public:
-  enum Type {TypeUdp=0,TypeLast=1};
-  Receiver(SyProfile *c,int recv_num,QObject *parent=0);
+  enum Type {TypeSimpleFile=0,TypeLast=1};
+  Processor(SyProfile *c,int recv_num,int proc_num,QObject *parent=0);
   virtual Type type() const=0;
-  virtual bool start(QString *err_msg)=0;
-  void closeFiles();
+  virtual bool start(QString *err_msg);
+  virtual void processMessage(Message *msg,const QHostAddress &from_addr)=0;
+  virtual void closeFiles();
   static QString typeString(Type type);
   static Type typeFromString(const QString &str);
 
- signals:
-  void messageReceived(Message *msg,const QHostAddress &from_addr);
-
  protected:
-  void addProcessor(Processor::Type type,int proc_num);
-  void processMessage(Message *msg,const QHostAddress &from_addr);
   SyProfile *config() const;
   int receiverNumber() const;
+  int processorNumber() const;
+  QDir *logRootDirectory() const;
 
  private:
-  QMap<int,Processor *> d_processors;
   SyProfile *d_config;
   int d_receiver_number;
+  int d_processor_number;
+  QDir *d_log_root_directory;
 };
 
 
-#endif  // RECEIVER_H
+#endif  // PROCESSOR_H

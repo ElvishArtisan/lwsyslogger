@@ -360,13 +360,12 @@ void Message::ParseRfc3164(const QByteArray &data)
   QStringList f0=QString(data.mid(0,15)).split(" ",Qt::SkipEmptyParts);
   d_timestamp=QDateTime::fromString(f0.join(" "),"MMM d hh:mm:ss");
   if(d_timestamp.isValid()) {
-    QStringList f1=QString::fromUtf8(data.right(data.size()-16)).split(" ",Qt::KeepEmptyParts);
-    d_host_name=f1.first();
+    QStringList f1=QString::fromUtf8(data.right(data.size()-16)).
+      split(" ",Qt::KeepEmptyParts);
+    d_host_name=f1.first().trimmed();
     f1.removeFirst();
-    d_msg=f1.join(" ");
+    d_msg=f1.join(" ").trimmed();
     d_version=0;
     d_valid=true;
-    //    printf("HOSTNAME: |%s|\n",d_host_name.toUtf8().constData());
-    //    printf("MSG: |%s|\n",d_msg.toUtf8().constData());
   }
 }

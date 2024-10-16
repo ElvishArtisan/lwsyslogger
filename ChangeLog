@@ -16,3 +16,5 @@
 2024-10-16 Fred Gleason <fredg@paravelsystems.com>
 	* Added startup sanity checks for LogRoot to lwsyslogger(8).
 	* Added code to drop root permissions at startup to lwsyslogger(8).
+2024-10-16 Fred Gleason <fredg@paravelsystems.com>
+	* Added a 'SimpleFile' processor to lwsyslogger(8).

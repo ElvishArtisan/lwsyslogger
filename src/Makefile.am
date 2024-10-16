@@ -31,11 +31,16 @@ sbin_PROGRAMS = lwsyslogger
 
 dist_lwsyslogger_SOURCES = lwsyslogger.cpp lwsyslogger.h\
                            message.cpp message.h\
+                           proc_factory.cpp proc_factory.h\
+                           proc_simplefile.cpp proc_simplefile.h\
+                           processor.cpp processor.h\
                            recv_factory.cpp recv_factory.h\
                            recv_udp.cpp recv_udp.h\
                            receiver.cpp receiver.h
 
 nodist_lwsyslogger_SOURCES = moc_lwsyslogger.cpp\
+                             moc_proc_simplefile.cpp\
+                             moc_processor.cpp\
                              moc_recv_udp.cpp\
                              moc_receiver.cpp
 
