@@ -1,19 +1,15 @@
 @GENERATED_SCRIPT_FILE_WARNING@
 
 [Unit]
-Description=Rivendell Radio Automation System
-After=network.target remote-fs.target nss-lookup.target sound.target
+Description=lwsyslogger Syslog Server
+After=network.target remote-fs.target nss-lookup.target
 
 [Service]
 LimitNOFILE=4096
 Type=simple
-ExecStart=@prefix@/sbin/rdservice
-Environment=JACK_PROMISCUOUS_SERVER=audio
-PrivateTmp=false
+ExecStart=@prefix@/sbin/lwsyslogger
+PrivateTmp=true
 Restart=always
-RestartSec=2
-StartLimitInterval=120
-StartLimitBurst=50
 
 [Install]
 WantedBy=multi-user.target

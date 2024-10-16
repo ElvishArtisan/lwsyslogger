@@ -6,3 +6,5 @@
 	* Renamed the project to 'lwsyslogger'.
 2024-10-16 Fred Gleason <fredg@paravelsystems.com>
 	* Added various derived files to the 'make maintainer' target.
+2024-10-16 Fred Gleason <fredg@paravelsystems.com>
+	* Stubbed out the 'lwsyslogger' SystemD service.
