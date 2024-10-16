@@ -5,7 +5,7 @@ case "$1" in
     configure)
       /bin/systemctl daemon-reload
       /usr/sbin/groupadd -r -f lwsyslogger
-      /usr/sbin/useradd -r -f -g lwsyslogger -s /bin/false -r -c "lwsyslogger system"
+      /usr/sbin/useradd -r -g lwsyslogger -s /bin/false -c "lwsyslogger system" lwsyslogger
       if test ! -e /var/log/lwsyslogger ; then
 	  mkdir -p /var/log/lwsyslogger
 	  chown lwsyslogger:lwsyslogger /var/log/lwsyslogger

@@ -18,9 +18,15 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
+#include <errno.h>
+#include <grp.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <QCoreApplication>
 
@@ -56,16 +62,6 @@ MainObject::MainObject(QObject *parent)
   }
 
   //
-  // Configuration
-  //
-  d_config=new SyProfile();
-  if(!d_config->setSource(config_filename)) {
-    fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\"\n",
-	    config_filename.toUtf8().constData());
-    exit(1);
-  }
-
-  //
   // Syslog
   //
   if(debug) {
@@ -74,6 +70,75 @@ MainObject::MainObject(QObject *parent)
   else {
     openlog("lwsyslogger",0,LOG_SYSLOG);
   }
+  
+  //
+  // Verify that the LogRoot is configured correctly
+  //
+  d_config=new SyProfile();
+  if(!d_config->setSource(config_filename)) {
+    fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\"\n",
+	    config_filename.toUtf8().constData());
+    exit(1);
+  }
+  QString logroot=d_config->stringValue("Global","LogRoot",DEFAULT_LOGROOT);
+  QString service_user=
+    d_config->stringValue("Global","ServiceUser",DEFAULT_SERVICE_USER);
+  struct passwd *passwd=getpwnam(service_user.toUtf8());
+  if(passwd==NULL) {
+    fprintf(stderr,"lwsyslogger: cannot find ServiceUser \"%s\" [%s]\n",
+	    service_user.toUtf8().constData(),strerror(errno));
+    exit(1);
+  }
+  if(passwd->pw_uid==0) {
+    fprintf(stderr,"lwsyslogger: running under UID \"0\" not supported\n");
+    exit(1);
+  }
+  d_uid=passwd->pw_uid;
+
+  QString service_group=
+    d_config->stringValue("Global","ServiceGroup",DEFAULT_SERVICE_GROUP);
+  struct group *group=getgrnam(service_group.toUtf8());
+  if(group==NULL) {
+    fprintf(stderr,"lwsyslogger: cannot find ServiceGroup \"%s\" [%s]\n",
+	    service_group.toUtf8().constData(),strerror(errno));
+    exit(1);
+  }
+  d_gid=group->gr_gid;
+  
+  struct stat statbuf;
+  memset(&statbuf,0,sizeof(statbuf));
+  if(stat(logroot.toUtf8(),&statbuf)!=0) {
+    fprintf(stderr,
+	    "lwsyslogger: unable to stat LogRoot directory \"%s\" [%s]\n",
+	    logroot.toUtf8().constData(),strerror(errno));
+    exit(1);
+  }
+  if(statbuf.st_uid!=d_uid) {
+    fprintf(stderr,
+	    "lwsyslogger: LogRoot directory \"%s\" not owned by user \"%s\"\n",
+	    logroot.toUtf8().constData(),service_user.toUtf8().constData());
+    exit(1);
+  }
+  if(statbuf.st_gid!=d_gid) {
+    fprintf(stderr,
+	    "lwsyslogger: LogRoot directory \"%s\" not owned by group \"%s\"\n",
+	    logroot.toUtf8().constData(),service_group.toUtf8().constData());
+    exit(1);
+  }
+  if((statbuf.st_mode&S_IRUSR)==0) {
+    fprintf(stderr,
+	    "lwsyslogger: LogRoot directory \"%s\" is not readable by user \"%s\"\n",
+	    logroot.toUtf8().constData(),service_user.toUtf8().constData());
+    exit(1);
+  }
+  if((statbuf.st_mode&S_IWUSR)==0) {
+    fprintf(stderr,
+	    "lwsyslogger: LogRoot directory \"%s\" is not writeable by user \"%s\"\n",
+	    logroot.toUtf8().constData(),service_user.toUtf8().constData());
+    exit(1);
+  }
+
+  d_logroot_dir=new QDir(logroot);
   
   //
   // Start Receivers
@@ -108,6 +173,20 @@ MainObject::MainObject(QObject *parent)
     count++;
     section=QString::asprintf("Receiver%d",1+count);
     type=(Receiver::Type)d_config->intValue(section,"Port",0,&ok);
+  }
+
+  //
+  // Drop Root Permissions
+  //
+  if(setgid(d_gid)!=0) {
+    fprintf(stderr,"lwsyslogger: failed to set GID for \"%s\" [%s]\n",
+	    service_group.toUtf8().constData(),strerror(errno));
+    exit(1);
+  }
+  if(setuid(d_uid)!=0) {
+    fprintf(stderr,"lwsyslogger: failed to set UID for \"%s\" [%s]\n",
+	    service_user.toUtf8().constData(),strerror(errno));
+    exit(1);
   }
 }
 

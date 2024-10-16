@@ -21,6 +21,7 @@
 #ifndef LWSYSLOGGER_H
 #define LWSYSLOGGER_H
 
+#include <QDir>
 #include <QList>
 #include <QObject>
 
@@ -32,6 +33,9 @@
 // Defaults
 //
 #define DEFAULT_CONFIG_FILENAME "/etc/lwsyslogger.conf"
+#define DEFAULT_LOGROOT "/var/log/lwsyslogger"
+#define DEFAULT_SERVICE_USER "lwsyslogger"
+#define DEFAULT_SERVICE_GROUP "lwsyslogger"
 
 //
 // Global RIPCD Definitions
@@ -49,6 +53,10 @@ class MainObject : public QObject
    
  private:
   QList<Receiver *> d_receivers;
+  QDir *d_logroot_dir;
+  uid_t d_uid;
+  gid_t d_gid;
+  QString d_group_name;
   SyProfile *d_config;
 };
 
