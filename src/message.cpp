@@ -176,7 +176,7 @@ QString Message::dump() const
   QString ret;
   
   if(d_version==0) {
-    ret+="Version: 0\n";
+    ret+="Protocol Version: 0 [Traditional BSD]\n";
     ret+="Timestamp: XXXX-"+d_timestamp.toString("MM-dd hh:mm:ss")+"\n";
     ret+=QString::asprintf("Facility: %s\n",
 			   Message::facilityString(d_facility).
@@ -196,7 +196,7 @@ QString Message::facilityString(unsigned facility)
 {
   QString ret=QObject::tr("Unknown")+QString::asprintf(" [%u]",facility);
 
-  switch(facility) {
+  switch(facility<<3) {
   case LOG_KERN:
     ret="LOG_KERN [0]";
     break;
@@ -245,19 +245,19 @@ QString Message::facilityString(unsigned facility)
     ret="LOG_FTP [11]";
     break;
 
-  case 12:
+  case 96:
     ret="NTP Subsystem [12]";
     break;
 
-  case 13:
+  case 104:
     ret="Log Audit [13]";
     break;
 
-  case 14:
+  case 112:
     ret="Log Alert [14]";
     break;
 
-  case 15:
+  case 120:
     ret="Clock Daemon [15]";
     break;
 
@@ -357,12 +357,13 @@ void Message::ParseRfc3164(const QByteArray &data)
   //
   // Traditional BSD-Style Format
   //
-  d_timestamp=QDateTime::fromString(QString(data.mid(0,15)),"MMM dd hh:mm:ss");
+  QStringList f0=QString(data.mid(0,15)).split(" ",Qt::SkipEmptyParts);
+  d_timestamp=QDateTime::fromString(f0.join(" "),"MMM d hh:mm:ss");
   if(d_timestamp.isValid()) {
-    QStringList f0=QString::fromUtf8(data.right(data.size()-16)).split(" ",Qt::KeepEmptyParts);
-    d_host_name=f0.first();
-    f0.removeFirst();
-    d_msg=f0.join(" ");
+    QStringList f1=QString::fromUtf8(data.right(data.size()-16)).split(" ",Qt::KeepEmptyParts);
+    d_host_name=f1.first();
+    f1.removeFirst();
+    d_msg=f1.join(" ");
     d_version=0;
     d_valid=true;
     //    printf("HOSTNAME: |%s|\n",d_host_name.toUtf8().constData());
