@@ -29,7 +29,8 @@ moc_%.cpp:	%.h
 
 sbin_PROGRAMS = lwsyslogger
 
-dist_lwsyslogger_SOURCES = lwsyslogger.cpp lwsyslogger.h\
+dist_lwsyslogger_SOURCES = local_syslog.h\
+                           lwsyslogger.cpp lwsyslogger.h\
                            message.cpp message.h\
                            proc_factory.cpp proc_factory.h\
                            proc_simplefile.cpp proc_simplefile.h\

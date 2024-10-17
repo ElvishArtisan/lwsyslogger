@@ -26,3 +26,5 @@
 	'[Receiver<n>]'	section of lwsyslogger.conf(5).
 	* Added a 'Processor<n>Severity=' filter directive to the
 	'[Receiver<n>]'	section of lwsyslogger.conf(5).
+2024-10-17 Fred Gleason <fredg@paravelsystems.com>
+	* Added logging of logger startup and shutdown messages.

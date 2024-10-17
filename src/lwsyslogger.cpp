@@ -21,9 +21,9 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <syslog.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -35,10 +35,64 @@
 #include "lwsyslogger.h"
 #include "recv_factory.h"
 
+//
+// Globals
+//
+bool global_exiting=false;
+QList<Receiver *> *syslog_receivers=NULL;
+
+void SigHandler(int signo)
+{
+  switch(signo) {
+  case SIGINT:
+  case SIGTERM:
+    global_exiting=true;
+    break;
+  }
+}
+
+bool debug=false;
+void LocalSyslog(Message::Severity severity,const char *fmt,...)
+{
+  static char buffer[1024];
+  static QList<Message::Severity> early_severities;
+  static QStringList early_msgs;
+  static Message *msg=NULL;
+  
+  va_list args;
+  va_start(args,fmt);
+  if(vsnprintf(buffer,1024,fmt,args)>0) {
+    if(debug) {
+      fprintf(stderr,"%s\n",buffer);
+    }
+    if(syslog_receivers==NULL) {
+      early_severities.push_back(severity);
+      early_msgs.push_back(buffer);
+    }
+    else {
+      for(int i=0;i<early_msgs.size();i++) {
+	msg=new Message(early_severities.at(i),early_msgs.at(i));
+	syslog_receivers->at(i)->
+	  processMessage(msg,QHostAddress("127.0.0.1"));
+	delete msg;
+      }
+      early_msgs.clear();
+      early_severities.clear();
+      msg=new Message(severity,buffer);
+      for(int i=0;i<syslog_receivers->size();i++) {
+	syslog_receivers->at(i)->
+	  processMessage(msg,QHostAddress("127.0.0.1"));
+      }
+      delete msg;
+    }
+  }
+  va_end(args);
+}
+
+
 MainObject::MainObject(QObject *parent)
   : QObject(parent)
 {
-  bool debug=false;
   QString config_filename=DEFAULT_CONFIG_FILENAME;
   
   //
@@ -61,16 +115,6 @@ MainObject::MainObject(QObject *parent)
     }
   }
 
-  //
-  // Syslog
-  //
-  if(debug) {
-    openlog("lwsyslogger",LOG_PERROR,LOG_SYSLOG);
-  }
-  else {
-    openlog("lwsyslogger",0,LOG_SYSLOG);
-  }
-  
   //
   // Verify that the LogRoot is configured correctly
   //
@@ -176,6 +220,7 @@ MainObject::MainObject(QObject *parent)
     section=QString::asprintf("Receiver%d",1+count);
     type=(Receiver::Type)d_config->intValue(section,"Port",0,&ok);
   }
+  syslog_receivers=&d_receivers;
 
   //
   // Drop Root Permissions
@@ -190,13 +235,27 @@ MainObject::MainObject(QObject *parent)
 	    service_user.toUtf8().constData(),strerror(errno));
     exit(1);
   }
+
+  //
+  // Exit Timer
+  //
+  d_exit_timer=new QTimer(this);
+  d_exit_timer->setSingleShot(false);
+  connect(d_exit_timer,SIGNAL(timeout()),this,SLOT(exitData()));
+  d_exit_timer->start(500);
+  signal(SIGINT,SigHandler);
+  signal(SIGTERM,SigHandler);
+
+  LocalSyslog(Message::SeverityNotice,"lwsyslogger v%s started",VERSION);
 }
 
 
-void MainObject::messageReceivedData(Message *msg,const QHostAddress &from_addr)
+void MainObject::exitData()
 {
-  //  printf("******************************************\n");
-  //  printf("%s",msg->dump().toUtf8().constData());
+  if(global_exiting) {
+    LocalSyslog(Message::SeverityNotice,"lwsyslogger v%s exiting",VERSION);
+    exit(0);
+  }
 }
 
 

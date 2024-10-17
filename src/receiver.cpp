@@ -21,6 +21,7 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
+#include "local_syslog.h"
 #include "proc_factory.h"
 #include "receiver.h"
 
@@ -82,7 +83,6 @@ void Receiver::addProcessor(Processor::Type type,int proc_num)
 
 void Receiver::processMessage(Message *msg,const QHostAddress &from_addr)
 {
-  //  emit messageReceived(msg,from_addr);
   for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
       it!=d_processors.end();it++) {
     it.value()->process(msg,from_addr);

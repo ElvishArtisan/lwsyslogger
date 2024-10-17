@@ -47,6 +47,7 @@ class Message : public QObject
     SeverityWarning=4,SeverityNotice=5,SeverityInfo=6,SeverityDebug=7,
     SeverityLast=8};
   Message(const QByteArray &data);
+  Message(Message::Severity severity,const QString &msg);
   Message();
   bool isValid() const;
   int version() const;

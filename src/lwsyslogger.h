@@ -24,9 +24,11 @@
 #include <QDir>
 #include <QList>
 #include <QObject>
+#include <QTimer>
 
 #include <sy5/syprofile.h>
 
+#include "local_syslog.h"
 #include "receiver.h"
 
 //
@@ -49,7 +51,7 @@ class MainObject : public QObject
   MainObject(QObject *parent=0);
 
  private slots:
-  void messageReceivedData(Message *msg,const QHostAddress &from_addr);
+  void exitData();
    
  private:
   QList<Receiver *> d_receivers;
@@ -58,6 +60,8 @@ class MainObject : public QObject
   gid_t d_gid;
   QString d_group_name;
   SyProfile *d_config;
+  QTimer *d_exit_timer;
+  friend void LocalSyslog(int prio,const QString &msg);
 };
 
 

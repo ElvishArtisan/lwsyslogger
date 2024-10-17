@@ -20,10 +20,11 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#include <syslog.h>
+#include <unistd.h>
 
 #include <QStringList>
 
+#include "local_syslog.h"
 #include "message.h"
 
 Message::Message(const QByteArray &data)
@@ -38,7 +39,7 @@ Message::Message(const QByteArray &data)
   if((data.indexOf('<')==0)&&(data.indexOf('>')<=4)) {
     unsigned prio=QString(data.mid(1,data.indexOf('>')-1)).toUInt(&ok);
     if((!ok)||(prio>191)) {
-      syslog(LOG_WARNING,"invalid PRIO received");
+      LocalSyslog(Message::SeverityWarning,"invalid PRIO received");
       return;
     }
     d_severity=(Message::Severity)(0x07&prio);
@@ -53,6 +54,25 @@ Message::Message(const QByteArray &data)
       ParseRfc3164(data.right(data.size()-data.indexOf('>')-1));
     }
   }
+}
+
+
+Message::Message(Message::Severity severity,const QString &msg)
+{
+  static char hostname[PATH_MAX];
+
+  memset(hostname,0,PATH_MAX);
+  if(gethostname(hostname,PATH_MAX-1)<0) {
+    strcpy(hostname,"localhost");
+  }
+  clear();
+  d_version=0;
+  d_timestamp=QDateTime::currentDateTime();
+  d_facility=Message::FacilitySyslog;
+  d_severity=severity;
+  d_host_name=hostname;
+  d_msg=msg;
+  d_valid=true;
 }
 
 

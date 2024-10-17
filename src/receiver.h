@@ -41,6 +41,7 @@ class Receiver : public QObject
   virtual Type type() const=0;
   virtual bool start(QString *err_msg)=0;
   void closeFiles();
+  void processMessage(Message *msg,const QHostAddress &from_addr);
   static QString typeString(Type type);
   static Type typeFromString(const QString &str);
 
@@ -49,7 +50,7 @@ class Receiver : public QObject
 
  protected:
   void addProcessor(Processor::Type type,int proc_num);
-  void processMessage(Message *msg,const QHostAddress &from_addr);
+  //  void processMessage(Message *msg,const QHostAddress &from_addr);
   SyProfile *config() const;
   int receiverNumber() const;
 
