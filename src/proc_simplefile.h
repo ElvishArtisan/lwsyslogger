@@ -31,7 +31,7 @@ class ProcSimpleFile : public Processor
   Processor::Type type() const;
   void closeFiles();
 
- private slots:
+ protected:
   void processMessage(Message *msg,const QHostAddress &from_addr);
 
  private:

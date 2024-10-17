@@ -41,8 +41,8 @@ Message::Message(const QByteArray &data)
       syslog(LOG_WARNING,"invalid PRIO received");
       return;
     }
-    d_severity=0x07&prio;
-    d_facility=prio>>3;
+    d_severity=(Message::Severity)(0x07&prio);
+    d_facility=(Message::Facility)(prio>>3);
     //
     // Determine Message Protocol
     //
@@ -89,13 +89,13 @@ unsigned Message::priority() const
 }
 
 
-unsigned Message::facility() const
+Message::Facility Message::facility() const
 {
   return d_facility;
 }
 
 
-unsigned Message::severity() const
+Message::Severity Message::severity() const
 {
   return d_severity;
 }
@@ -180,8 +180,8 @@ QString Message::resolveWildcards(const QString &fmt)
 void Message::clear()
 {
   d_valid=false;
-  d_facility=0;
-  d_severity=0;
+  d_facility=Message::FacilityLast;
+  d_severity=Message::SeverityLast;;
   d_timestamp=QDateTime();
   d_host_name=QString();
   d_app_name=QString();
@@ -212,151 +212,184 @@ QString Message::dump() const
 }
 
 
-QString Message::facilityString(unsigned facility)
+QString Message::facilityString(Message::Facility facility)
 {
-  QString ret=QObject::tr("Unknown")+QString::asprintf(" [%u]",facility);
+  QString ret=QObject::tr("UNKNOWN")+QString::asprintf(" [%u]",facility);
 
-  switch(facility<<3) {
-  case LOG_KERN:      // 0
+  switch(facility) {
+  case Message::FacilityKern:      // 0
     ret="LOG_KERN";
     break;
 
-  case LOG_USER:      // 1
+  case Message::FacilityUser:      // 1
     ret="LOG_USER";
     break;
 
-  case LOG_MAIL:      // 2
+  case Message::FacilityMail:      // 2
     ret="LOG_MAIL";
     break;
 
-  case LOG_DAEMON:    // 3
+  case Message::FacilityDaemon:    // 3
     ret="LOG_DAEMON";
     break;
 
-  case LOG_AUTH:      // 4
+  case Message::FacilityAuth:      // 4
     ret="LOG_AUTH";
     break;
 
-  case LOG_SYSLOG:    // 5
+  case Message::FacilitySyslog:    // 5
     ret="LOG_SYSLOG";
     break;
 
-  case LOG_LPR:       // 6
+  case Message::FacilityLpr:       // 6
     ret="LOG_LPR";
     break;
 
-  case LOG_NEWS:      // 7
+  case Message::FacilityNews:      // 7
     ret="LOG_NEWS";
     break;
 
-  case LOG_UUCP:      // 8
+  case Message::FacilityUucp:      // 8
     ret="LOG_UUCP";
     break;
 
-  case LOG_CRON:      // 9
+  case Message::FacilityCron:      // 9
     ret="LOG_CRON";
     break;
 
-  case LOG_AUTHPRIV:  // 10
+  case Message::FacilityAuthpriv:  // 10
     ret="LOG_AUTHPRIV";
     break;
 
-  case LOG_FTP:       // 11
+  case Message::FacilityFtp:       // 11
     ret="LOG_FTP";
     break;
 
-  case 96:            // 12
-    ret="NTPSubsystem";
+  case Message::FacilityNtp:        // 12
+    ret="LOG_NTP";
     break;
 
-  case 104:           // 13
-    ret="LogAudit";
+  case Message::FacilityAudit:           // 13
+    ret="LOG_AUDIT";
     break;
 
-  case 112:           // 14
-    ret="LogAlert";
-    break;
-
-  case 120:           // 15
-    ret="ClockDaemon";
-    break;
-
-  case LOG_LOCAL0:    // 16
-    ret="LOG_LOCAL0";
-    break;
-
-  case LOG_LOCAL1:    // 17
-    ret="LOG_LOCAL1";
-    break;
-
-  case LOG_LOCAL2:    // 18
-    ret="LOG_LOCAL2";
-    break;
-
-  case LOG_LOCAL3:    // 19
-    ret="LOG_LOCAL3";
-    break;
-
-  case LOG_LOCAL4:    // 20
-    ret="LOG_LOCAL4";
-    break;
-
-  case LOG_LOCAL5:    // 21
-    ret="LOG_LOCAL5";
-    break;
-
-  case LOG_LOCAL6:    // 22
-    ret="LOG_LOCAL6";
-    break;
-
-  case LOG_LOCAL7:    // 23
-    ret="LOG_LOCAL7";
-    break;
-  }
-  return ret;
-}
-
-
-QString Message::severityString(unsigned severity)
-{
-  QString ret=QObject::tr("Unknown")+QString::asprintf("%u",severity);
-
-  switch(severity) {
-  case LOG_EMERG:     // 0
-    ret="LOG_EMERG";
-    break;
-
-  case LOG_ALERT:     // 1
+  case Message::FacilityAlert:           // 14
     ret="LOG_ALERT";
     break;
 
-  case LOG_CRIT:      // 2
+  case Message::FacilityClock:           // 15
+    ret="LOG_CLOCK";
+    break;
+
+  case Message::FacilityLocal0:    // 16
+    ret="LOG_LOCAL0";
+    break;
+
+  case Message::FacilityLocal1:    // 17
+    ret="LOG_LOCAL1";
+    break;
+
+  case Message::FacilityLocal2:    // 18
+    ret="LOG_LOCAL2";
+    break;
+
+  case Message::FacilityLocal3:    // 19
+    ret="LOG_LOCAL3";
+    break;
+
+  case Message::FacilityLocal4:    // 20
+    ret="LOG_LOCAL4";
+    break;
+
+  case Message::FacilityLocal5:    // 21
+    ret="LOG_LOCAL5";
+    break;
+
+  case Message::FacilityLocal6:    // 22
+    ret="LOG_LOCAL6";
+    break;
+
+  case Message::FacilityLocal7:    // 23
+    ret="LOG_LOCAL7";
+    break;
+
+  case Message::FacilityLast:      // 24
+    break;
+  }
+  return ret;
+}
+
+
+Message::Facility Message::facilityFromString(const QString &str)
+{
+  for(int i=0;i<Message::FacilityLast;i++) {
+    if(Message::facilityString((Message::Facility)i).toUpper()==
+       str.trimmed().toUpper()) {
+      return (Message::Facility)i;
+    }
+  }
+  
+  return Message::FacilityLast;
+}
+
+
+QString Message::severityString(Message::Severity severity)
+{
+  QString ret=QObject::tr("UNKNOWN")+QString::asprintf("%u",severity);
+
+  switch(severity) {
+  case Message::SeverityEmerg:     // 0
+    ret="LOG_EMERG";
+    break;
+
+  case Message::SeverityAlert:     // 1
+    ret="LOG_ALERT";
+    break;
+
+  case Message::SeverityCrit:      // 2
     ret="LOG_CRIT";
     break;
 
-  case LOG_ERR:       // 3
+  case Message::SeverityErr:       // 3
     ret="LOG_ERR";
     break;
 
-  case LOG_WARNING:   // 4
+  case Message::SeverityWarning:   // 4
     ret="LOG_WARNING";
     break;
 
-  case LOG_NOTICE:    // 5
+  case Message::SeverityNotice:    // 5
     ret="LOG_NOTICE";
     break;
 
-  case LOG_INFO:      // 6
+  case Message::SeverityInfo:      // 6
     ret="LOG_INFO";
     break;
 
-  case LOG_DEBUG:     // 7
+  case Message::SeverityDebug:     // 7
     ret="LOG_DEBUG";
+    break;
+
+  case Message::SeverityLast:      // 8
     break;
   }
 
   return ret;
 }
+
+
+Message::Severity Message::severityFromString(const QString &str)
+{
+  for(int i=0;i<Message::SeverityLast;i++) {
+    if(Message::severityString((Message::Severity)i).toUpper()==
+       str.trimmed().toUpper()) {
+      return (Message::Severity)i;
+    }
+  }
+  
+  return Message::SeverityLast;
+}
+
 
 QString Message::nillified(const QString &str)
 {

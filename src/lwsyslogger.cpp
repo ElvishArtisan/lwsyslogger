@@ -85,12 +85,13 @@ MainObject::MainObject(QObject *parent)
     d_config->stringValue("Global","ServiceUser",DEFAULT_SERVICE_USER);
   struct passwd *passwd=getpwnam(service_user.toUtf8());
   if(passwd==NULL) {
-    fprintf(stderr,"lwsyslogger: cannot find ServiceUser \"%s\" [%s]\n",
-	    service_user.toUtf8().constData(),strerror(errno));
+    fprintf(stderr,
+	    "lwsyslogger: cannot find ServiceUser \"%s\" [No such user]\n",
+	    service_user.toUtf8().constData());
     exit(1);
   }
   if(passwd->pw_uid==0) {
-    fprintf(stderr,"lwsyslogger: running under UID \"0\" not supported\n");
+    fprintf(stderr,"lwsyslogger: running under UID \"0\" is not supported\n");
     exit(1);
   }
   d_uid=passwd->pw_uid;
@@ -99,8 +100,9 @@ MainObject::MainObject(QObject *parent)
     d_config->stringValue("Global","ServiceGroup",DEFAULT_SERVICE_GROUP);
   struct group *group=getgrnam(service_group.toUtf8());
   if(group==NULL) {
-    fprintf(stderr,"lwsyslogger: cannot find ServiceGroup \"%s\" [%s]\n",
-	    service_group.toUtf8().constData(),strerror(errno));
+    fprintf(stderr,
+	    "lwsyslogger: cannot find ServiceGroup \"%s\" [No such group]\n",
+	    service_group.toUtf8().constData());
     exit(1);
   }
   d_gid=group->gr_gid;

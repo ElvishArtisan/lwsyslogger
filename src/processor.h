@@ -36,18 +36,28 @@ class Processor : public QObject
   Processor(SyProfile *c,int recv_num,int proc_num,QObject *parent=0);
   virtual Type type() const=0;
   virtual bool start(QString *err_msg);
-  virtual void processMessage(Message *msg,const QHostAddress &from_addr)=0;
+  void process(Message *msg,const QHostAddress &from_addr);
   virtual void closeFiles();
   static QString typeString(Type type);
   static Type typeFromString(const QString &str);
 
  protected:
+  virtual void processMessage(Message *msg,const QHostAddress &from_addr)=0;
   SyProfile *config() const;
   int receiverNumber() const;
   int processorNumber() const;
+  bool processIf(Message::Facility facility) const;
+  bool processIf(Message::Severity severity) const;
   QDir *logRootDirectory() const;
 
  private:
+  uint32_t MakeSeverityMask(const QString &params,bool *ok,
+			    QString *err_msg) const;
+  uint32_t MakeFacilityMask(const QString &params,bool *ok,
+			    QString *err_msg) const;
+  uint32_t MakeMask(uint32_t num) const;
+  uint32_t d_facility_mask;
+  uint32_t d_severity_mask;
   SyProfile *d_config;
   int d_receiver_number;
   int d_processor_number;

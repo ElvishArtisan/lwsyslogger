@@ -85,7 +85,7 @@ void Receiver::processMessage(Message *msg,const QHostAddress &from_addr)
   //  emit messageReceived(msg,from_addr);
   for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
       it!=d_processors.end();it++) {
-    it.value()->processMessage(msg,from_addr);
+    it.value()->process(msg,from_addr);
   }
 }
 
