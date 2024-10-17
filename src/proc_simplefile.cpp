@@ -38,6 +38,16 @@ ProcSimpleFile::ProcSimpleFile(SyProfile *c,int recv_num,int proc_num,QObject *p
     exit(1);
   }
   d_base_file=NULL;
+
+  d_template=config()->
+    stringValue(QString::asprintf("Receiver%d",1+receiverNumber()),
+		QString::asprintf("Processor%dTemplate",1+processorNumber()),
+		"",&ok);
+  if(!ok) {
+    fprintf(stderr,"lwsyslogger: missing Template in Receiver%d:%d\n",
+	    1+receiverNumber(),1+processorNumber());
+    exit(1);
+  }
 }
 
 
@@ -62,10 +72,14 @@ void ProcSimpleFile::processMessage(Message *msg,const QHostAddress &from_addr)
     d_base_file=fopen(d_base_filename.toUtf8(),"a");
   }
   if(d_base_file!=NULL) {
+    fprintf(d_base_file,"%s\n",
+	    msg->resolveWildcards(d_template).toUtf8().constData());
+    /*
     fprintf(d_base_file,"%s %s %s\n",
 	    msg->timestamp().toString("MMM dd hh:mm:ss").toUtf8().constData(),
 	    msg->hostName().toUtf8().constData(),
 	    msg->msg().toUtf8().constData());
+    */
     fflush(d_base_file);
   }
 }

@@ -18,3 +18,6 @@
 	* Added code to drop root permissions at startup to lwsyslogger(8).
 2024-10-16 Fred Gleason <fredg@paravelsystems.com>
 	* Added a 'SimpleFile' processor to lwsyslogger(8).
+2024-10-16 Fred Gleason <fredg@paravelsystems.com>
+	* Added a 'Processor<n>Template=' directive to the '[Receiver<n>]'
+	section of lwsyslogger.conf(5).

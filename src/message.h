@@ -48,6 +48,7 @@ class Message : public QObject
   QString msgId() const;
   QString msg() const;
   QByteArray toByteArray();
+  QString resolveWildcards(const QString &fmt);
   void clear();
   QString dump() const;
   static QString facilityString(unsigned facility);

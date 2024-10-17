@@ -36,6 +36,7 @@ class ProcSimpleFile : public Processor
 
  private:
   QString d_base_filename;
+  QString d_template;
   FILE *d_base_file;
 };
 

@@ -157,6 +157,26 @@ QByteArray Message::toByteArray()
 }
 
 
+QString Message::resolveWildcards(const QString &fmt)
+{
+  QString ret=fmt;
+
+  ret.replace("%f",QString::asprintf("%u",d_facility));   // Facility (numeric)
+  ret.replace("%F",Message::facilityString(d_facility));  // Facility (symbolic)
+  ret.replace("%h",d_host_name);                          // Hostname
+  ret.replace("%m",d_msg);                                // MSG
+  ret.replace("%p",QString::asprintf("%u",priority()));   // PRIO
+  ret.replace("%P",QString::asprintf("<%u>",priority())); // PRIO (decorated)
+  ret.replace("%s",QString::asprintf("%u",d_severity));   // Severity (numeric)
+  ret.replace("%S",Message::severityString(d_severity));  // Severity (symbolic)
+  ret.replace("%t",d_timestamp.
+	      toString("MMM dd hh:mm:ss"));               // Timestamp (BSD)
+  ret.replace("%T",d_timestamp.
+	      toString("yyyy-MM-ddThh:mm:ss"));         // Timestamp (RFC-5424)
+  return ret;
+}
+
+
 void Message::clear()
 {
   d_valid=false;
@@ -197,100 +217,100 @@ QString Message::facilityString(unsigned facility)
   QString ret=QObject::tr("Unknown")+QString::asprintf(" [%u]",facility);
 
   switch(facility<<3) {
-  case LOG_KERN:
-    ret="LOG_KERN [0]";
+  case LOG_KERN:      // 0
+    ret="LOG_KERN";
     break;
 
-  case LOG_USER:
-    ret="LOG_USER [1]";
+  case LOG_USER:      // 1
+    ret="LOG_USER";
     break;
 
-  case LOG_MAIL:
-    ret="LOG_MAIL [2]";
+  case LOG_MAIL:      // 2
+    ret="LOG_MAIL";
     break;
 
-  case LOG_DAEMON:
-    ret="LOG_DAEMON [3]";
+  case LOG_DAEMON:    // 3
+    ret="LOG_DAEMON";
     break;
 
-  case LOG_AUTH:
-    ret="LOG_AUTH [4]";
+  case LOG_AUTH:      // 4
+    ret="LOG_AUTH";
     break;
 
-  case LOG_SYSLOG:
-    ret="LOG_SYSLOG [5]";
+  case LOG_SYSLOG:    // 5
+    ret="LOG_SYSLOG";
     break;
 
-  case LOG_LPR:
-    ret="LOG_LPR [6]";
+  case LOG_LPR:       // 6
+    ret="LOG_LPR";
     break;
 
-  case LOG_NEWS:
-    ret="LOG_NEWS [7]";
+  case LOG_NEWS:      // 7
+    ret="LOG_NEWS";
     break;
 
-  case LOG_UUCP:
-    ret="LOG_UUCP [8]";
+  case LOG_UUCP:      // 8
+    ret="LOG_UUCP";
     break;
 
-  case LOG_CRON:
-    ret="LOG_CRON [9]";
+  case LOG_CRON:      // 9
+    ret="LOG_CRON";
     break;
 
-  case LOG_AUTHPRIV:
-    ret="LOG_AUTHPRIV [10]";
+  case LOG_AUTHPRIV:  // 10
+    ret="LOG_AUTHPRIV";
     break;
 
-  case LOG_FTP:
-    ret="LOG_FTP [11]";
+  case LOG_FTP:       // 11
+    ret="LOG_FTP";
     break;
 
-  case 96:
-    ret="NTP Subsystem [12]";
+  case 96:            // 12
+    ret="NTPSubsystem";
     break;
 
-  case 104:
-    ret="Log Audit [13]";
+  case 104:           // 13
+    ret="LogAudit";
     break;
 
-  case 112:
-    ret="Log Alert [14]";
+  case 112:           // 14
+    ret="LogAlert";
     break;
 
-  case 120:
-    ret="Clock Daemon [15]";
+  case 120:           // 15
+    ret="ClockDaemon";
     break;
 
-  case LOG_LOCAL0:
-    ret="LOG_LOCAL0 [16]";
+  case LOG_LOCAL0:    // 16
+    ret="LOG_LOCAL0";
     break;
 
-  case LOG_LOCAL1:
-    ret="LOG_LOCAL1 [17]";
+  case LOG_LOCAL1:    // 17
+    ret="LOG_LOCAL1";
     break;
 
-  case LOG_LOCAL2:
-    ret="LOG_LOCAL2 [18]";
+  case LOG_LOCAL2:    // 18
+    ret="LOG_LOCAL2";
     break;
 
-  case LOG_LOCAL3:
-    ret="LOG_LOCAL3 [19]";
+  case LOG_LOCAL3:    // 19
+    ret="LOG_LOCAL3";
     break;
 
-  case LOG_LOCAL4:
-    ret="LOG_LOCAL4 [20]";
+  case LOG_LOCAL4:    // 20
+    ret="LOG_LOCAL4";
     break;
 
-  case LOG_LOCAL5:
-    ret="LOG_LOCAL5 [21]";
+  case LOG_LOCAL5:    // 21
+    ret="LOG_LOCAL5";
     break;
 
-  case LOG_LOCAL6:
-    ret="LOG_LOCAL6 [22]";
+  case LOG_LOCAL6:    // 22
+    ret="LOG_LOCAL6";
     break;
 
-  case LOG_LOCAL7:
-    ret="LOG_LOCAL7 [23]";
+  case LOG_LOCAL7:    // 23
+    ret="LOG_LOCAL7";
     break;
   }
   return ret;
@@ -302,36 +322,36 @@ QString Message::severityString(unsigned severity)
   QString ret=QObject::tr("Unknown")+QString::asprintf("%u",severity);
 
   switch(severity) {
-  case LOG_EMERG:
-    ret="LOG_EMERG [0]";
+  case LOG_EMERG:     // 0
+    ret="LOG_EMERG";
     break;
 
-  case LOG_ALERT:
-    ret="LOG_ALERT [1]";
+  case LOG_ALERT:     // 1
+    ret="LOG_ALERT";
     break;
 
-  case LOG_CRIT:
-    ret="LOG_CRIT [2]";
+  case LOG_CRIT:      // 2
+    ret="LOG_CRIT";
     break;
 
-  case LOG_ERR:
-    ret="LOG_ERR [3]";
+  case LOG_ERR:       // 3
+    ret="LOG_ERR";
     break;
 
-  case LOG_WARNING:
-    ret="LOG_WARNING [4]";
+  case LOG_WARNING:   // 4
+    ret="LOG_WARNING";
     break;
 
-  case LOG_NOTICE:
-    ret="LOG_NOTICE [5]";
+  case LOG_NOTICE:    // 5
+    ret="LOG_NOTICE";
     break;
 
-  case LOG_INFO:
-    ret="LOG_INFO [6]";
+  case LOG_INFO:      // 6
+    ret="LOG_INFO";
     break;
 
-  case LOG_DEBUG:
-    ret="LOG_DEBUG [7]";
+  case LOG_DEBUG:     // 7
+    ret="LOG_DEBUG";
     break;
   }
 
@@ -357,8 +377,16 @@ void Message::ParseRfc3164(const QByteArray &data)
   //
   // Traditional BSD-Style Format
   //
+
+  //
+  // Hack to fudge a year for a BSD-style timestamp
+  // WARNING: This races for times near the year rollover!
+  //
   QStringList f0=QString(data.mid(0,15)).split(" ",Qt::SkipEmptyParts);
-  d_timestamp=QDateTime::fromString(f0.join(" "),"MMM d hh:mm:ss");
+  QString year=QDate::currentDate().toString("yyyy");
+  d_timestamp=
+    QDateTime::fromString(year+" "+f0.join(" "),"yyyy MMM d hh:mm:ss");
+
   if(d_timestamp.isValid()) {
     QStringList f1=QString::fromUtf8(data.right(data.size()-16)).
       split(" ",Qt::KeepEmptyParts);
