@@ -37,3 +37,5 @@
 	'[Receiver<n>]'	section of lwsyslogger.conf(5).
 	* Added a 'Processor<n>OldLogPurgeAge=' directive to the
 	'[Receiver<n>]'	section of lwsyslogger.conf(5).
+2024-10-18 Fred Gleason <fredg@paravelsystems.com>
+	* Updated the sample configuration file.
