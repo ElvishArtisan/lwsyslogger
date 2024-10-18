@@ -42,7 +42,7 @@
 //
 // Global RIPCD Definitions
 //
-#define LWSYSLOGGER_USAGE "[--config=<filename>] [-d]\n\n"
+#define LWSYSLOGGER_USAGE "[--config=<filename>] [--rotate-logfiles[=YYYY-MM-DD]] [--no-local-syslog] [-d]\n\n"
 
 class MainObject : public QObject
 {

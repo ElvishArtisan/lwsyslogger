@@ -21,8 +21,10 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
+#include <QDateTime>
 #include <QDir>
 #include <QObject>
+#include <QTimer>
 
 #include <sy5/syprofile.h>
 
@@ -37,12 +39,15 @@ class Processor : public QObject
   virtual Type type() const=0;
   virtual bool start(QString *err_msg);
   void process(Message *msg,const QHostAddress &from_addr);
-  virtual void closeFiles();
+  QString idString() const;
+  virtual void rotateLogs(const QDateTime &now);
   static QString typeString(Type type);
   static Type typeFromString(const QString &str);
 
  protected:
   virtual void processMessage(Message *msg,const QHostAddress &from_addr)=0;
+  void rotateLogFile(const QString &filename,const QDateTime &now) const;
+  bool expireLogFile(const QString &pathname,const QDateTime &now) const;
   SyProfile *config() const;
   int receiverNumber() const;
   int processorNumber() const;
@@ -50,7 +55,11 @@ class Processor : public QObject
   bool processIf(Message::Severity severity) const;
   QDir *logRootDirectory() const;
 
+ private slots:
+  void logRotationData();
+  
  private:
+  void StartLogRotationTimer();
   uint32_t MakeSeverityMask(const QString &params,bool *ok,
 			    QString *err_msg) const;
   uint32_t MakeFacilityMask(const QString &params,bool *ok,
@@ -59,6 +68,11 @@ class Processor : public QObject
   uint32_t d_facility_mask;
   uint32_t d_severity_mask;
   SyProfile *d_config;
+  QTimer *d_log_rotation_timer;
+  QTime d_log_rotation_time;
+  int d_old_log_purge_age;
+  int d_log_rotation_age;
+  int d_log_rotation_size;
   int d_receiver_number;
   int d_processor_number;
   QDir *d_log_root_directory;

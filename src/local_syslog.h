@@ -26,6 +26,7 @@
 #include "message.h"
 
 extern bool debug;
+extern bool no_local_syslog;
 extern void LocalSyslog(Message::Severity severity,const char *format,...);
 
 

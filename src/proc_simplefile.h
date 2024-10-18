@@ -21,6 +21,8 @@
 #ifndef PROC_SIMPLEFILE_H
 #define PROC_SIMPLEFILE_H
 
+#include <QDir>
+
 #include "processor.h"
 
 class ProcSimpleFile : public Processor
@@ -29,13 +31,15 @@ class ProcSimpleFile : public Processor
  public:
   ProcSimpleFile(SyProfile *c,int recv_num,int proc_num,QObject *parent);
   Processor::Type type() const;
-  void closeFiles();
+  void rotateLogs(const QDateTime &now);
 
  protected:
   void processMessage(Message *msg,const QHostAddress &from_addr);
 
  private:
+  QString d_base_pathname;
   QString d_base_filename;
+  QDir *d_base_dir;
   QString d_template;
   FILE *d_base_file;
 };

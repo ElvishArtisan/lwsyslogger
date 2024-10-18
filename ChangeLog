@@ -28,3 +28,12 @@
 	'[Receiver<n>]'	section of lwsyslogger.conf(5).
 2024-10-17 Fred Gleason <fredg@paravelsystems.com>
 	* Added logging of logger startup and shutdown messages.
+2024-10-18 Fred Gleason <fredg@paravelsystems.com>
+	* Added a '--no-local-syslog' switch to lwsyslogger(8).
+	* Added a '--rotate-logfiles' switch to lwsyslogger(8).
+	* Added a 'Processor<n>LogRotationTime=' directive to the
+	'[Receiver<n>]'	section of lwsyslogger.conf(5).
+	* Added a 'Processor<n>LogRotationSize=' directive to the
+	'[Receiver<n>]'	section of lwsyslogger.conf(5).
+	* Added a 'Processor<n>OldLogPurgeAge=' directive to the
+	'[Receiver<n>]'	section of lwsyslogger.conf(5).

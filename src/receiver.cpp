@@ -52,15 +52,6 @@ Receiver::Receiver(SyProfile *c,int recv_num,QObject *parent)
 }
 
 
-void Receiver::closeFiles()
-{
-  for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
-      it!=d_processors.end();it++) {
-    it.value()->closeFiles();
-  }
-}
-
-
 void Receiver::addProcessor(Processor::Type type,int proc_num)
 {
   QString err_msg;
@@ -99,6 +90,15 @@ SyProfile *Receiver::config() const
 int Receiver::receiverNumber() const
 {
   return d_receiver_number;
+}
+
+
+void Receiver::rotateLogs(const QDateTime &now)
+{
+  for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
+      it!=d_processors.end();it++) {
+    it.value()->rotateLogs(now);
+  }
 }
 
 

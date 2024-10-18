@@ -18,34 +18,52 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
+#include <errno.h>
+#include <unistd.h>
 #include <unistd.h>
 #include <sys/types.h>
 
+#include "local_syslog.h"
 #include "proc_simplefile.h"
 
 ProcSimpleFile::ProcSimpleFile(SyProfile *c,int recv_num,int proc_num,QObject *parent)
   : Processor(c,recv_num,proc_num,parent)
 {
   bool ok=false;
+  QString section=QString::asprintf("Receiver%d",1+receiverNumber());
+  QString proc_base=QString::asprintf("Processor%d",1+proc_num);
   
-  d_base_filename=logRootDirectory()->path()+"/"+
-    config()->stringValue(QString::asprintf("Receiver%d",1+receiverNumber()),
-			  QString::asprintf("Processor%dBaseFilename",
-					    1+processorNumber()),"",&ok);
+  //
+  // Get Base Filename and Pathname
+  //
+  d_base_pathname=logRootDirectory()->path()+"/"+
+    config()->stringValue(section,proc_base+"BaseFilename","",&ok);
   if(!ok) {
-    fprintf(stderr,"lwsyslogger: missing BaseFilename in Receiver%d:%d\n",
-	    1+receiverNumber(),1+processorNumber());
+    fprintf(stderr,"lwsyslogger: missing BaseFilename in %s\n",
+	    idString().toUtf8().constData());
     exit(1);
   }
+  QStringList f0=d_base_pathname.split("/",Qt::KeepEmptyParts);
+  d_base_filename=f0.last();
+  f0.removeLast();
+  if(f0.size()==0) {
+    d_base_dir=logRootDirectory();
+  }
+  else {
+    d_base_dir=new QDir(f0.join("/"));
+  }
+  LocalSyslog(Message::SeverityDebug,"%s using base_dir \"%s\"",
+	      idString().toUtf8().constData(),
+	      d_base_dir->path().toUtf8().constData());
   d_base_file=NULL;
 
-  d_template=config()->
-    stringValue(QString::asprintf("Receiver%d",1+receiverNumber()),
-		QString::asprintf("Processor%dTemplate",1+processorNumber()),
-		"",&ok);
+  //
+  // Get Record Template
+  //
+  d_template=config()->stringValue(section,proc_base+"Template","",&ok);
   if(!ok) {
-    fprintf(stderr,"lwsyslogger: missing Template in Receiver%d:%d\n",
-	    1+receiverNumber(),1+processorNumber());
+    fprintf(stderr,"lwsyslogger: missing Template in %s\n",
+	    idString().toUtf8().constData());
     exit(1);
   }
 }
@@ -57,11 +75,31 @@ Processor::Type ProcSimpleFile::type() const
 }
 
 
-void ProcSimpleFile::closeFiles()
+void ProcSimpleFile::rotateLogs(const QDateTime &now)
 {
+  //
+  // Rotate Base File
+  //
   if(d_base_file!=NULL) {
     fclose(d_base_file);
     d_base_file=NULL;
+  }
+  rotateLogFile(d_base_pathname,now);
+  if((d_base_file=fopen(d_base_pathname.toUtf8(),"a"))==NULL) {
+    LocalSyslog(Message::SeverityWarning,
+		"%s: failed to reopen logfile %s [%s]",
+		idString().toUtf8().constData(),
+		d_base_pathname.toUtf8().constData(),strerror(errno));
+  }
+
+  //
+  // Delete Expired Files
+  //
+  QStringList name_filters;
+  name_filters.push_back(d_base_filename+"-*");
+  QStringList filenames=d_base_dir->entryList(name_filters,QDir::Files);
+  for(int i=0;i<filenames.size();i++) {
+    expireLogFile(d_base_dir->path()+"/"+filenames.at(i),now);
   }
 }
 
@@ -69,17 +107,11 @@ void ProcSimpleFile::closeFiles()
 void ProcSimpleFile::processMessage(Message *msg,const QHostAddress &from_addr)
 {
   if(d_base_file==NULL) {
-    d_base_file=fopen(d_base_filename.toUtf8(),"a");
+    d_base_file=fopen(d_base_pathname.toUtf8(),"a");
   }
   if(d_base_file!=NULL) {
     fprintf(d_base_file,"%s\n",
 	    msg->resolveWildcards(d_template).toUtf8().constData());
-    /*
-    fprintf(d_base_file,"%s %s %s\n",
-	    msg->timestamp().toString("MMM dd hh:mm:ss").toUtf8().constData(),
-	    msg->hostName().toUtf8().constData(),
-	    msg->msg().toUtf8().constData());
-    */
     fflush(d_base_file);
   }
 }

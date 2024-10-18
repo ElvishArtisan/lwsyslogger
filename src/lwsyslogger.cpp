@@ -38,6 +38,7 @@
 //
 // Globals
 //
+bool no_local_syslog=false;
 bool global_exiting=false;
 QList<Receiver *> *syslog_receivers=NULL;
 
@@ -58,35 +59,39 @@ void LocalSyslog(Message::Severity severity,const char *fmt,...)
   static QList<Message::Severity> early_severities;
   static QStringList early_msgs;
   static Message *msg=NULL;
-  
-  va_list args;
-  va_start(args,fmt);
-  if(vsnprintf(buffer,1024,fmt,args)>0) {
-    if(debug) {
-      fprintf(stderr,"%s\n",buffer);
-    }
-    if(syslog_receivers==NULL) {
-      early_severities.push_back(severity);
-      early_msgs.push_back(buffer);
-    }
-    else {
-      for(int i=0;i<early_msgs.size();i++) {
-	msg=new Message(early_severities.at(i),early_msgs.at(i));
-	syslog_receivers->at(i)->
-	  processMessage(msg,QHostAddress("127.0.0.1"));
+
+  if(!no_local_syslog) {
+    va_list args;
+    va_start(args,fmt);
+    if(vsnprintf(buffer,1024,fmt,args)>0) {
+      if(debug) {
+	fprintf(stderr,"%s\n",buffer);
+      }
+      if(syslog_receivers==NULL) {
+	early_severities.push_back(severity);
+	early_msgs.push_back(buffer);
+      }
+      else {
+	for(int i=0;i<early_msgs.size();i++) {
+	  msg=new Message(early_severities.at(i),early_msgs.at(i));
+	  for(int j=0;j<syslog_receivers->size();j++) {
+	    syslog_receivers->at(j)->
+	      processMessage(msg,QHostAddress("127.0.0.1"));
+	  }
+	  delete msg;
+	}
+	early_msgs.clear();
+	early_severities.clear();
+	msg=new Message(severity,buffer);
+	for(int i=0;i<syslog_receivers->size();i++) {
+	  syslog_receivers->at(i)->
+	    processMessage(msg,QHostAddress("127.0.0.1"));
+	}
 	delete msg;
       }
-      early_msgs.clear();
-      early_severities.clear();
-      msg=new Message(severity,buffer);
-      for(int i=0;i<syslog_receivers->size();i++) {
-	syslog_receivers->at(i)->
-	  processMessage(msg,QHostAddress("127.0.0.1"));
-      }
-      delete msg;
     }
+    va_end(args);
   }
-  va_end(args);
 }
 
 
@@ -94,7 +99,9 @@ MainObject::MainObject(QObject *parent)
   : QObject(parent)
 {
   QString config_filename=DEFAULT_CONFIG_FILENAME;
-  
+  QDateTime rotate_logfiles_datetime=QDateTime::currentDateTime();
+  bool rotate_logfiles=false;
+
   //
   // Read Switches
   //
@@ -106,6 +113,23 @@ MainObject::MainObject(QObject *parent)
     }
     if(cmd->key(i)=="-d") {
       debug=true;
+      cmd->setProcessed(i,true);
+    }
+    if(cmd->key(i)=="--no-local-syslog") {
+      no_local_syslog=true;
+      cmd->setProcessed(i,true);
+    }
+    if(cmd->key(i)=="--rotate-logfiles") {
+      rotate_logfiles=true;
+      if(!cmd->value(i).isEmpty()) {
+	rotate_logfiles_datetime=
+	  QDateTime::fromString(cmd->value(i),"yyyy-MM-ddThh:mm:ss");
+	if(!rotate_logfiles_datetime.isValid()) {
+	  fprintf(stderr,
+	    "lwsyslogger: invalid date-time specified for --rotate-logfiles\n");
+	  exit(1);
+	}
+      }
       cmd->setProcessed(i,true);
     }
     if(!cmd->processed(i)) {
@@ -207,8 +231,6 @@ MainObject::MainObject(QObject *parent)
 	      Receiver::typeString(type).toUtf8().constData());
       exit(1);
     }
-    connect(recv,SIGNAL(messageReceived(Message *,const QHostAddress &)),
-	    this,SLOT(messageReceivedData(Message *,const QHostAddress &)));
     if(!recv->start(&err_msg)) {
       fprintf(stderr,"lwsyslogger: failed to start %s [%s]\n",
 	      section.toUtf8().constData(),err_msg.toUtf8().constData());
@@ -247,6 +269,16 @@ MainObject::MainObject(QObject *parent)
   signal(SIGTERM,SigHandler);
 
   LocalSyslog(Message::SeverityNotice,"lwsyslogger v%s started",VERSION);
+
+  //
+  // Force Log Rotation
+  //
+  if(rotate_logfiles) {
+    for(int i=0;i<d_receivers.size();i++) {
+      d_receivers.at(i)->rotateLogs(rotate_logfiles_datetime);
+    }
+    global_exiting=true;
+  }
 }
 
 
