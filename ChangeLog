@@ -39,3 +39,5 @@
 	'[Receiver<n>]'	section of lwsyslogger.conf(5).
 2024-10-18 Fred Gleason <fredg@paravelsystems.com>
 	* Updated the sample configuration file.
+2024-10-18 Fred Gleason <fredg@paravelsystems.com>
+	* Added lwsyslogger(8) and lwsyslogger.conf(5) man pages.

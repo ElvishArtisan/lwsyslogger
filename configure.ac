@@ -182,6 +182,7 @@ AC_CONFIG_FILES([lwsyslogger.spec \
     Makefile \
     helpers/Makefile \
     src/Makefile \
+    docs/manpages/Makefile \
     docs/Makefile \
     systemd/Makefile \
     systemd/lwsyslogger.service \

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<refentry id="stdin" xmlns="http://docbook.org/ns/docbook" version="5.0">
+  <!--
+      Header
+  -->
+  <refmeta>
+    <refentrytitle>lwsyslogger</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class='source'>October 2024</refmiscinfo>
+    <refmiscinfo class='manual'>Linux Audio Manual</refmiscinfo>
+  </refmeta>
+  <refnamediv>
+    <refname>lwsyslogger</refname>
+    <refpurpose>Syslog server for Livewire AoIP sites</refpurpose>
+  </refnamediv>
+  <info>
+    <author>
+      <personname>
+	<firstname>Fred</firstname>
+	<surname>Gleason</surname>
+	<email>fredg@paravelsystems.com</email>
+      </personname>
+      <contrib>Application Author</contrib>
+    </author>
+  </info>
+
+  <!--
+      Body
+  -->
+  <refsynopsisdiv id='synopsis'>
+    <cmdsynopsis>
+      <command>lwsyslogger</command>
+      <arg choice='opt'><replaceable>OPTIONS</replaceable></arg>
+      <sbr/>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1 id='description'><title>Description</title>
+  <para>
+    <command>lwsyslogger</command><manvolnum>8</manvolnum> is syslog server
+    intended for use in Livewire AoIP sites. It aims to be broadly
+    compliant with RFC-5424 and related specifications.
+  </para>
+  </refsect1>
+
+  <refsect1 id='options'><title>Options</title>
+  <variablelist remap='TP'>
+    <varlistentry>
+      <term>
+	<option>--config=<replaceable>filename</replaceable></option>
+      </term>
+      <listitem>
+	<para>
+	  Read the configuration file from <replaceable>filename</replaceable>.
+	  Default value is <userinput>/etc/lwsyslogger.conf</userinput>
+	</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>
+	<option>-d</option>
+      </term>
+      <listitem>
+	<para>
+	  Operate in debugging mode. This will cause internally generated
+	  messages to be printed to standard error as well as sent to
+	  the logfiles (but see the <userinput>--no-local-syslog</userinput>
+	  option below).
+	</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>
+	<option>--no-local-syslog</option>
+      </term>
+      <listitem>
+	<para>
+	  Suppress the sending of any internally generated messages regarding
+	  <command>lwsyslogger</command><manvolnum>8</manvolnum>'s internal
+	  operation to any of its logfiles. Mostly useful in certain
+	  debugging scenarios.
+	</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>
+	<option>--rotate-logfiles[=<replaceable>YYYY-MM-DDThh:mm:dd</replaceable>]</option>
+      </term>
+      <listitem>
+	<para>
+	  Force a log rotation event and then exit. The date-time to be
+	  supplied to the rotation code may be specified as an argument,
+	  otherwise the current value of the system clock will be used.
+	  Mostly useful for debugging.
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+  
+  <refsect1 id='bugs'><title>Bugs</title>
+  <para>
+    Many features mandated by RFC-5424 are missing.
+  </para>
+  </refsect1>
+
+  <refsect1 id='see_also'><title>See Also</title>
+  <para>
+  <citerefentry>
+    <refentrytitle>lwsyslogger.conf</refentrytitle><manvolnum>5</manvolnum>
+  </citerefentry>
+  <literal>,</literal>
+  <citerefentry>
+    <refentrytitle>syslog</refentrytitle><manvolnum>3</manvolnum>
+  </citerefentry>
+  </para>
+  </refsect1>
+</refsect1>
+
+</refentry>
+
