@@ -26,7 +26,7 @@
 #include "local_syslog.h"
 #include "proc_simplefile.h"
 
-ProcSimpleFile::ProcSimpleFile(SyProfile *c,int recv_num,int proc_num,QObject *parent)
+ProcSimpleFile::ProcSimpleFile(Profile *c,int recv_num,int proc_num,QObject *parent)
   : Processor(c,recv_num,proc_num,parent)
 {
   bool ok=false;

@@ -26,9 +26,8 @@
 #include <QObject>
 #include <QTimer>
 
-#include <sy5/syprofile.h>
-
 #include "local_syslog.h"
+#include "profile.h"
 #include "receiver.h"
 
 //
@@ -59,7 +58,7 @@ class MainObject : public QObject
   uid_t d_uid;
   gid_t d_gid;
   QString d_group_name;
-  SyProfile *d_config;
+  Profile *d_config;
   QTimer *d_exit_timer;
   friend void LocalSyslog(int prio,const QString &msg);
 };

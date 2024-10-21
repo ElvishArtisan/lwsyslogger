@@ -25,7 +25,7 @@
 
 #include "recv_udp.h"
 
-RecvUdp::RecvUdp(SyProfile *c,int recv_num,QObject *parent)
+RecvUdp::RecvUdp(Profile *c,int recv_num,QObject *parent)
   : Receiver(c,recv_num,parent)
 {
   d_socket=new QUdpSocket(this);

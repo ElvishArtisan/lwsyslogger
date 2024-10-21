@@ -27,7 +27,7 @@
 #include "local_syslog.h"
 #include "processor.h"
 
-Processor::Processor(SyProfile *c,int recv_num,int proc_num,QObject *parent)
+Processor::Processor(Profile *c,int recv_num,int proc_num,QObject *parent)
   : QObject(parent)
 {
   bool ok=false;
@@ -92,7 +92,7 @@ void Processor::process(Message *msg,const QHostAddress &from_addr)
 }
 
 
-SyProfile *Processor::config() const
+Profile *Processor::config() const
 {
   return d_config;
 }

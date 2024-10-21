@@ -26,7 +26,7 @@
 #include <QObject>
 #include <QTimer>
 
-#include <sy5/syprofile.h>
+#include "profile.h"
 
 #include "message.h"
 
@@ -35,7 +35,7 @@ class Processor : public QObject
   Q_OBJECT
  public:
   enum Type {TypeSimpleFile=0,TypeLast=1};
-  Processor(SyProfile *c,int recv_num,int proc_num,QObject *parent=0);
+  Processor(Profile *c,int recv_num,int proc_num,QObject *parent=0);
   virtual Type type() const=0;
   virtual bool start(QString *err_msg);
   void process(Message *msg,const QHostAddress &from_addr);
@@ -48,7 +48,7 @@ class Processor : public QObject
   virtual void processMessage(Message *msg,const QHostAddress &from_addr)=0;
   void rotateLogFile(const QString &filename,const QDateTime &now) const;
   bool expireLogFile(const QString &pathname,const QDateTime &now) const;
-  SyProfile *config() const;
+  Profile *config() const;
   int receiverNumber() const;
   int processorNumber() const;
   bool processIf(Message::Facility facility) const;
@@ -67,7 +67,7 @@ class Processor : public QObject
   uint32_t MakeMask(uint32_t num) const;
   uint32_t d_facility_mask;
   uint32_t d_severity_mask;
-  SyProfile *d_config;
+  Profile *d_config;
   QTimer *d_log_rotation_timer;
   QTime d_log_rotation_time;
   int d_old_log_purge_age;

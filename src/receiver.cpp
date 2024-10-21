@@ -25,7 +25,7 @@
 #include "proc_factory.h"
 #include "receiver.h"
 
-Receiver::Receiver(SyProfile *c,int recv_num,QObject *parent)
+Receiver::Receiver(Profile *c,int recv_num,QObject *parent)
   : QObject(parent)
 {
   d_config=c;
@@ -81,7 +81,7 @@ void Receiver::processMessage(Message *msg,const QHostAddress &from_addr)
 }
 
 
-SyProfile *Receiver::config() const
+Profile *Receiver::config() const
 {
   return d_config;
 }

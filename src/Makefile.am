@@ -20,7 +20,7 @@
 ##
 ## Use automake to process this into a Makefile.in
 
-AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC -I$(top_srcdir)/lib @QT5_CLI_CFLAGS@ @SWITCHYARD5_CFLAGS@
+AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC -I$(top_srcdir)/lib @QT5_CLI_CFLAGS@
 MOC = @QT_MOC@
 
 # The dependency for qt's Meta Object Compiler (moc)
@@ -29,12 +29,14 @@ moc_%.cpp:	%.h
 
 sbin_PROGRAMS = lwsyslogger
 
-dist_lwsyslogger_SOURCES = local_syslog.h\
+dist_lwsyslogger_SOURCES = cmdswitch.cpp cmdswitch.h\
+                           local_syslog.h\
                            lwsyslogger.cpp lwsyslogger.h\
                            message.cpp message.h\
                            proc_factory.cpp proc_factory.h\
                            proc_simplefile.cpp proc_simplefile.h\
                            processor.cpp processor.h\
+                           profile.cpp profile.h\
                            recv_factory.cpp recv_factory.h\
                            recv_udp.cpp recv_udp.h\
                            receiver.cpp receiver.h
@@ -45,8 +47,7 @@ nodist_lwsyslogger_SOURCES = moc_lwsyslogger.cpp\
                              moc_recv_udp.cpp\
                              moc_receiver.cpp
 
-lwsyslogger_LDADD = @QT5_CLI_LIBS@\
-                    @SWITCHYARD5_LIBS@
+lwsyslogger_LDADD = @QT5_CLI_LIBS@
 
 CLEANFILES = *~\
              *.idb\

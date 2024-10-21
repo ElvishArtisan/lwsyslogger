@@ -29,7 +29,7 @@ class ProcSimpleFile : public Processor
 {
   Q_OBJECT
  public:
-  ProcSimpleFile(SyProfile *c,int recv_num,int proc_num,QObject *parent);
+  ProcSimpleFile(Profile *c,int recv_num,int proc_num,QObject *parent);
   Processor::Type type() const;
   void rotateLogs(const QDateTime &now);
 

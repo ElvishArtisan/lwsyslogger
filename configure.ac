@@ -46,11 +46,6 @@ AC_CHECK_PROG(LRELEASE_NAME,lrelease-qt5,[lrelease-qt5],[lrelease])
 AC_SUBST(QT_LRELEASE,$LRELEASE_NAME)
 
 #
-# Check for Switchyard5 (Mandatory)
-#
-PKG_CHECK_MODULES(SWITCHYARD5,switchyard5,,[AC_MSG_ERROR([*** Switchyard5 not found ***])])
-
-#
 # Determine the target architecture
 #
 AR_GCC_TARGET()

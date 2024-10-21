@@ -23,11 +23,11 @@
 
 #include <QUdpSocket>
 
-#include <sy5/syprofile.h>
+#include "profile.h"
 
 #include "receiver.h"
 
-Receiver *ReceiverFactory(Receiver::Type type,SyProfile *c,int recv_num,
+Receiver *ReceiverFactory(Receiver::Type type,Profile *c,int recv_num,
 			  QObject *parent);
 
 

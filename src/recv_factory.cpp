@@ -20,7 +20,7 @@
 
 #include "recv_udp.h"
 
-Receiver *ReceiverFactory(Receiver::Type type,SyProfile *c,int recv_num,
+Receiver *ReceiverFactory(Receiver::Type type,Profile *c,int recv_num,
 			  QObject *parent)
 {
   Receiver *recv=NULL;

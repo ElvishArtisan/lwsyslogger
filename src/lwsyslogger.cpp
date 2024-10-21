@@ -30,8 +30,7 @@
 
 #include <QCoreApplication>
 
-#include <sy5/sycmdswitch.h>
-
+#include "cmdswitch.h"
 #include "lwsyslogger.h"
 #include "recv_factory.h"
 
@@ -105,7 +104,7 @@ MainObject::MainObject(QObject *parent)
   //
   // Read Switches
   //
-  SyCmdSwitch *cmd=new SyCmdSwitch("lwsyslogger",VERSION,LWSYSLOGGER_USAGE);
+  CmdSwitch *cmd=new CmdSwitch("lwsyslogger",VERSION,LWSYSLOGGER_USAGE);
   for(int i=0;i<cmd->keys();i++) {
     if(cmd->key(i)=="--config") {
       config_filename=cmd->value(i);
@@ -142,7 +141,7 @@ MainObject::MainObject(QObject *parent)
   //
   // Verify that the LogRoot is configured correctly
   //
-  d_config=new SyProfile();
+  d_config=new Profile();
   if(!d_config->setSource(config_filename)) {
     fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\"\n",
 	    config_filename.toUtf8().constData());

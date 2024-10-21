@@ -27,17 +27,16 @@
 #include <QMap>
 #include <QObject>
 
-#include <sy5/syprofile.h>
-
 #include "message.h"
 #include "processor.h"
+#include "profile.h"
 
 class Receiver : public QObject
 {
   Q_OBJECT
  public:
   enum Type {TypeUdp=0,TypeLast=1};
-  Receiver(SyProfile *c,int recv_num,QObject *parent=0);
+  Receiver(Profile *c,int recv_num,QObject *parent=0);
   virtual Type type() const=0;
   virtual bool start(QString *err_msg)=0;
   void processMessage(Message *msg,const QHostAddress &from_addr);
@@ -50,12 +49,12 @@ class Receiver : public QObject
 
  protected:
   void addProcessor(Processor::Type type,int proc_num);
-  SyProfile *config() const;
+  Profile *config() const;
   int receiverNumber() const;
 
  private:
   QMap<int,Processor *> d_processors;
-  SyProfile *d_config;
+  Profile *d_config;
   int d_receiver_number;
 };
 

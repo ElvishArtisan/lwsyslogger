@@ -21,11 +21,10 @@
 #ifndef PROC_FACTORY_H
 #define PROC_FACTORY_H
 
-#include <sy5/syprofile.h>
-
 #include "processor.h"
+#include "profile.h"
 
-Processor *ProcessorFactory(Processor::Type type,SyProfile *c,int recv_num,
+Processor *ProcessorFactory(Processor::Type type,Profile *c,int recv_num,
 			    int proc_num,QObject *parent);
 
 

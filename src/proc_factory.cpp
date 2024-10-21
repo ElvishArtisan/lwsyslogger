@@ -20,7 +20,7 @@
 
 #include "proc_simplefile.h"
 
-Processor *ProcessorFactory(Processor::Type type,SyProfile *c,int recv_num,
+Processor *ProcessorFactory(Processor::Type type,Profile *c,int recv_num,
 			    int proc_num,QObject *parent)
 {
   Processor *proc=NULL;
