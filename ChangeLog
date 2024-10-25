@@ -44,3 +44,5 @@
 2024-10-21 Fred Gleason <fredg@paravelsystems.com>
 	* Removed the 'Switchyard5' dependency.
 	* Added 'Profile' and 'CmdSwitch' classes from Exemplar at v1.0.1.
+2024-10-25 Fred Gleason <fredg@paravelsystems.com>
+	* Updated the 'Profile' class with Exemplar v1.1.0.

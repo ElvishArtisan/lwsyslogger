@@ -142,7 +142,7 @@ MainObject::MainObject(QObject *parent)
   // Verify that the LogRoot is configured correctly
   //
   d_config=new Profile();
-  if(!d_config->setSource(config_filename)) {
+  if(!d_config->loadFile(config_filename)) {
     fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\"\n",
 	    config_filename.toUtf8().constData());
     exit(1);
