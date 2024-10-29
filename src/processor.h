@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QTimer>
 
+#include "addressfilter.h"
 #include "profile.h"
 
 #include "message.h"
@@ -53,8 +54,6 @@ class Processor : public QObject
   void rotateLogFile(const QString &filename,const QDateTime &now) const;
   bool expireLogFile(const QString &pathname,const QDateTime &now) const;
   Profile *config() const;
-  bool processIf(Message::Facility facility) const;
-  bool processIf(Message::Severity severity) const;
   QDir *logRootDirectory() const;
   void lsyslog(Message::Severity severity,const char *fmt,...) const;
 
@@ -70,6 +69,7 @@ class Processor : public QObject
   uint32_t MakeMask(uint32_t num) const;
   uint32_t d_facility_mask;
   uint32_t d_severity_mask;
+  AddressFilter *d_address_filter;
   Profile *d_profile;
   QTimer *d_log_rotation_timer;
   QTime d_log_rotation_time;

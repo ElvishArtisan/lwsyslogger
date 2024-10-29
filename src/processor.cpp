@@ -37,7 +37,8 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
   d_id=id;
   d_profile=p;
   d_dry_run=false;
-
+  d_address_filter=new AddressFilter();
+  
   values=p->stringValues("Global","Default","LogRoot");
   if(values.isEmpty()) {
     fprintf(stderr,"lwsyslogger: unable to load location of \"LogRoot\"\n");
@@ -67,6 +68,42 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
 	  "lwsyslogger: invalid severity string \"%s\" for processor \"%s\"\n",
 	    strings.join(",").toUtf8().constData(),id.toUtf8().constData());
     exit(1);
+  }
+
+  //
+  // Upstream Addresses
+  //
+  strings=d_profile->stringValues("Processor",id,"UpstreamAddress");
+  for(int i=0;i<strings.size();i++) {
+    QStringList f0=strings.at(i).split(",",Qt::SkipEmptyParts);
+    for(int j=0;j<f0.size();j++) {
+      QStringList f1=f0.at(j).split("/",Qt::KeepEmptyParts);
+      if(f1.size()==2) {
+	QHostAddress addr(f1.at(0));
+	if(addr.isNull()) {
+	  fprintf(stderr,
+	      "lwsyslogger: invalid CIDR subnet \"%s\" for processor \"%s\"\n",
+		  f0.at(j).toUtf8().constData(),d_id.toUtf8().constData());
+	  exit(1);
+	}
+	int netmask=f1.at(1).toInt(&ok);
+	if((!ok)||(netmask<0)) {
+	  fprintf(stderr,
+	      "lwsyslogger: invalid CIDR subnet \"%s\" for processor \"%s\"\n",
+		  f0.at(j).toUtf8().constData(),d_id.toUtf8().constData());
+	  exit(1);
+	}
+	d_address_filter->addSubnet(addr,netmask);
+	lsyslog(Message::SeverityDebug,"added UpstreamAddress: %s/%d",
+		addr.toString().toUtf8().constData(),netmask);
+      }
+      else {
+	fprintf(stderr,
+	      "lwsyslogger: invalid CIDR subnet \"%s\" for processor \"%s\"\n",
+		f0.at(j).toUtf8().constData(),d_id.toUtf8().constData());
+	exit(1);
+      }
+    }
   }
 
   //
@@ -169,7 +206,9 @@ Processor::Type Processor::typeFromString(const QString &str)
 
 void Processor::process(Message *msg,const QHostAddress &from_addr)
 {
-  if(processIf(msg->severity())&&processIf(msg->facility())) {
+  if(((MakeMask(((uint32_t)msg->facility()))&d_facility_mask)!=0)&&
+     ((MakeMask(((uint32_t)msg->severity()))&d_severity_mask)!=0)&&
+     d_address_filter->contains(from_addr)) {
     processMessage(msg,from_addr);
   }
 }
@@ -227,9 +266,6 @@ void Processor::rotateLogFile(const QString &filename,
 bool Processor::expireLogFile(const QString &pathname,
 			      const QDateTime &now) const
 {
-  //  printf("expireLogFile(%s,%s)\n",
-  //	 pathname.toUtf8().constData(),now.toString("yyyy-MM-dd hh:mm:ss").toUtf8().constData());
-  
   QFileInfo info(pathname);
   bool ret=false;
   
@@ -257,18 +293,6 @@ bool Processor::expireLogFile(const QString &pathname,
   }
 
   return ret;
-}
-
-
-bool Processor::processIf(Message::Facility facility) const
-{
-  return (MakeMask(((uint32_t)facility))&d_facility_mask)!=0;
-}
-
-
-bool Processor::processIf(Message::Severity severity) const
-{
-  return (MakeMask(((uint32_t)severity))&d_severity_mask)!=0;
 }
 
 

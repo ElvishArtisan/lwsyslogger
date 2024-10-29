@@ -29,7 +29,8 @@ moc_%.cpp:	%.h
 
 sbin_PROGRAMS = lwsyslogger
 
-dist_lwsyslogger_SOURCES = cmdswitch.cpp cmdswitch.h\
+dist_lwsyslogger_SOURCES = addressfilter.cpp addressfilter.h\
+                           cmdswitch.cpp cmdswitch.h\
                            local_syslog.h\
                            lwsyslogger.cpp lwsyslogger.h\
                            message.cpp message.h\
