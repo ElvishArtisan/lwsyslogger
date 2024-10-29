@@ -56,6 +56,7 @@ class Processor : public QObject
   bool processIf(Message::Facility facility) const;
   bool processIf(Message::Severity severity) const;
   QDir *logRootDirectory() const;
+  void lsyslog(Message::Severity severity,const char *fmt,...) const;
 
  private slots:
   void logRotationData();

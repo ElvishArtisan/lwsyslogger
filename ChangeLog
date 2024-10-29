@@ -49,3 +49,6 @@
 2024-10-29 Fred Gleason <fredg@paravelsystems.com>
 	* Refactored Receivers and Processors to make them orthogonal to each
 	other.
+2024-10-29 Fred Gleason <fredg@paravelsystems.com>
+	* Added a 'Processor::lsyslog()' method.
+	* Added a 'Receiver::lsyslog()' method.

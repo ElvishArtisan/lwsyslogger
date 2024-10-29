@@ -47,6 +47,7 @@ class Receiver : public QObject
 
  protected:
   Profile *profile() const;
+  void lsyslog(Message::Severity severity,const char *fmt,...) const;
 
  private:
   Profile *d_profile;

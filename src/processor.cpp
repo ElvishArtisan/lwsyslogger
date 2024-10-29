@@ -210,14 +210,13 @@ void Processor::rotateLogFile(const QString &filename,
     }
     else {
       if(rename(filename.toUtf8(),new_filename.toUtf8())==0) {
-	LocalSyslog(Message::SeverityDebug,
-		    "%s rotated log file \"%s\" to \"%s\"",
-		    id().toUtf8().constData(),
+	lsyslog(Message::SeverityDebug,
+		    "rotated log file \"%s\" to \"%s\"",
 		    filename.toUtf8().constData(),
 		    new_filename.toUtf8().constData());
       }
       else {
-	LocalSyslog(Message::SeverityWarning,"log rotation of \"%s\" failed [%s]",
+	lsyslog(Message::SeverityWarning,"log rotation of \"%s\" failed [%s]",
 		    filename.toUtf8().constData(),strerror(errno));
       }
     }
@@ -244,18 +243,15 @@ bool Processor::expireLogFile(const QString &pathname,
     }
     else {
       if(unlink(info.filePath().toUtf8())==0) {
-	LocalSyslog(Message::SeverityDebug,
-		    "%s purged log file \"%s\"",
-		    id().toUtf8().constData(),
-		    info.filePath().toUtf8().constData());
+	lsyslog(Message::SeverityDebug,
+		"purged log file \"%s\"",
+		info.filePath().toUtf8().constData());
 	ret=true;
       }
       else {
-	LocalSyslog(Message::SeverityWarning,
-		    "%s failed to purge log file \"%s\" [%s]",
-		    id().toUtf8().constData(),
-		    info.filePath().toUtf8().constData(),
-		    strerror(errno));
+	lsyslog(Message::SeverityWarning,
+		"failed to purge log file \"%s\" [%s]",
+		info.filePath().toUtf8().constData(),strerror(errno));
       }
     }
   }
@@ -282,6 +278,22 @@ QDir *Processor::logRootDirectory() const
 }
 
 
+void Processor::lsyslog(Message::Severity severity,const char *fmt,...) const
+{
+  char buffer[1024];
+
+  va_list args;
+  va_start(args,fmt);
+  if(vsnprintf(buffer,1024,fmt,args)>0) {
+    if(debug) {
+      fprintf(stderr,"%s\n",buffer);
+    }
+  }
+  va_end(args);
+  LocalSyslog(severity,"processor %s: %s",d_id.toUtf8().constData(),buffer);
+}
+
+
 void Processor::logRotationData()
 {
   rotateLogs(QDateTime::currentDateTime());
@@ -300,9 +312,7 @@ void Processor::StartLogRotationTimer()
 				 d_log_rotation_time.addSecs(1)));
     }
     d_log_rotation_timer->start(msec);
-    LocalSyslog(Message::SeverityDebug,
-	      "processor %s: started log rotation timer: %ld ms",
-		id().toUtf8().constData(),msec);
+    lsyslog(Message::SeverityDebug,"started log rotation timer: %ld ms",msec);
   }
 }
 

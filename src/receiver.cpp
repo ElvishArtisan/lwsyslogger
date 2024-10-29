@@ -45,6 +45,22 @@ Profile *Receiver::profile() const
 }
 
 
+void Receiver::lsyslog(Message::Severity severity,const char *fmt,...) const
+{
+  char buffer[1024];
+
+  va_list args;
+  va_start(args,fmt);
+  if(vsnprintf(buffer,1024,fmt,args)>0) {
+    if(debug) {
+      fprintf(stderr,"%s\n",buffer);
+    }
+  }
+  va_end(args);
+  LocalSyslog(severity,"receiver %s: %s",d_id.toUtf8().constData(),buffer);
+}
+
+
 QString Receiver::typeString(Receiver::Type type)
 {
   QString ret="UNKNOWN";

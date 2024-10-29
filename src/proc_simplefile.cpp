@@ -45,9 +45,8 @@ ProcSimpleFile::ProcSimpleFile(const QString &id,Profile *p,QObject *parent)
   else {
     d_base_dir=new QDir(f0.join("/"));
   }
-  LocalSyslog(Message::SeverityDebug,"processor \"%s\" using base_dir \"%s\"",
-	      id.toUtf8().constData(),
-	      d_base_dir->path().toUtf8().constData());
+  lsyslog(Message::SeverityDebug,"using base_dir \"%s\"",
+	  d_base_dir->path().toUtf8().constData());
   d_base_file=NULL;
 
   values=p->stringValues("Processor",id,"Template");
@@ -79,10 +78,8 @@ void ProcSimpleFile::rotateLogs(const QDateTime &now)
   }
   rotateLogFile(d_base_pathname,now);
   if((d_base_file=fopen(d_base_pathname.toUtf8(),"a"))==NULL) {
-    LocalSyslog(Message::SeverityWarning,
-		"processor %s: failed to reopen logfile %s [%s]",
-		id().toUtf8().constData(),
-		d_base_pathname.toUtf8().constData(),strerror(errno));
+    lsyslog(Message::SeverityWarning,"failed to reopen logfile %s [%s]",
+	    d_base_pathname.toUtf8().constData(),strerror(errno));
   }
 
   //
