@@ -20,14 +20,14 @@
 
 #include "proc_simplefile.h"
 
-Processor *ProcessorFactory(Processor::Type type,Profile *c,int recv_num,
-			    int proc_num,QObject *parent)
+Processor *ProcessorFactory(Processor::Type type,const QString &id,Profile *p,
+			    QObject *parent)
 {
   Processor *proc=NULL;
   
   switch(type) {
   case Processor::TypeSimpleFile:
-    proc=new ProcSimpleFile(c,recv_num,proc_num,parent);
+    proc=new ProcSimpleFile(id,p,parent);
     break;
 
   case Processor::TypeLast:

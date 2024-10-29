@@ -46,3 +46,6 @@
 	* Added 'Profile' and 'CmdSwitch' classes from Exemplar at v1.0.1.
 2024-10-25 Fred Gleason <fredg@paravelsystems.com>
 	* Updated the 'Profile' class with Exemplar v1.1.0.
+2024-10-29 Fred Gleason <fredg@paravelsystems.com>
+	* Refactored Receivers and Processors to make them orthogonal to each
+	other.

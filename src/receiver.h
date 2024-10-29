@@ -28,7 +28,6 @@
 #include <QObject>
 
 #include "message.h"
-#include "processor.h"
 #include "profile.h"
 
 class Receiver : public QObject
@@ -36,11 +35,10 @@ class Receiver : public QObject
   Q_OBJECT
  public:
   enum Type {TypeUdp=0,TypeLast=1};
-  Receiver(Profile *c,int recv_num,QObject *parent=0);
+  Receiver(const QString &id,Profile *p,QObject *parent=0);
+  QString id() const;
   virtual Type type() const=0;
   virtual bool start(QString *err_msg)=0;
-  void processMessage(Message *msg,const QHostAddress &from_addr);
-  void rotateLogs(const QDateTime &now);
   static QString typeString(Type type);
   static Type typeFromString(const QString &str);
 
@@ -48,14 +46,11 @@ class Receiver : public QObject
   void messageReceived(Message *msg,const QHostAddress &from_addr);
 
  protected:
-  void addProcessor(Processor::Type type,int proc_num);
-  Profile *config() const;
-  int receiverNumber() const;
+  Profile *profile() const;
 
  private:
-  QMap<int,Processor *> d_processors;
-  Profile *d_config;
-  int d_receiver_number;
+  Profile *d_profile;
+  QString d_id;
 };
 
 

@@ -27,7 +27,7 @@
 
 #include "receiver.h"
 
-Receiver *ReceiverFactory(Receiver::Type type,Profile *c,int recv_num,
+Receiver *ReceiverFactory(Receiver::Type type,const QString &id,Profile *p,
 			  QObject *parent);
 
 

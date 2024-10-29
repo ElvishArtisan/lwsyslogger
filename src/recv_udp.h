@@ -32,7 +32,7 @@ class RecvUdp : public Receiver
 {
   Q_OBJECT
  public:
-  RecvUdp(Profile *c,int recv_num,QObject *parent);
+  RecvUdp(const QString &id,Profile *p,QObject *parent);
   Receiver::Type type() const;
   bool start(QString *err_msg);
   

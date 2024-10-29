@@ -25,80 +25,23 @@
 #include "proc_factory.h"
 #include "receiver.h"
 
-Receiver::Receiver(Profile *c,int recv_num,QObject *parent)
+Receiver::Receiver(const QString &id,Profile *p,QObject *parent)
   : QObject(parent)
 {
-  d_config=c;
-  d_receiver_number=recv_num;
-
-  //
-  // Create Processor(s)
-  //
-  bool ok=false;
-  int count=0;
-  QString section=QString::asprintf("Receiver%d",1+recv_num);
-  QString param=QString::asprintf("Processor%dType",1+count);
-  Processor::Type type=
-    Processor::typeFromString(d_config->stringValue(section,param,0,&ok));
-  while(ok) {
-    if(type==Processor::TypeLast) {
-      exit(1);
-    }
-    addProcessor(type,count);
-    count++;
-    param=QString::asprintf("Processor%dType",1+count);
-    type=Processor::typeFromString(d_config->stringValue(section,param,0,&ok));
-  }
+  d_id=id;
+  d_profile=p;
 }
 
 
-void Receiver::addProcessor(Processor::Type type,int proc_num)
+QString Receiver::id() const
 {
-  QString err_msg;
-  Processor *proc=
-    ProcessorFactory(type,config(),receiverNumber(),proc_num,this);
-  if(proc==NULL) {
-    fprintf(stderr,"lwsyslogger: failed to initialize processor type \"%s\"\n",
-	      Processor::typeString(type).toUtf8().constData());
-    exit(1);
-  }
-  if(!proc->start(&err_msg)) {
-    fprintf(stderr,
-	    "lwsyslogger: failed to start Receiver%d:%d processor [%s]\n",
-	    receiverNumber(),proc_num,err_msg.toUtf8().constData());
-    exit(1);
-  }
-  d_processors[proc_num]=proc;
+  return d_id;
 }
 
 
-void Receiver::processMessage(Message *msg,const QHostAddress &from_addr)
+Profile *Receiver::profile() const
 {
-  for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
-      it!=d_processors.end();it++) {
-    it.value()->process(msg,from_addr);
-  }
-}
-
-
-Profile *Receiver::config() const
-{
-  return d_config;
-}
-
-
-int Receiver::receiverNumber() const
-{
-  return d_receiver_number;
-}
-
-
-void Receiver::rotateLogs(const QDateTime &now)
-{
-  for(QMap<int,Processor *>::const_iterator it=d_processors.begin();
-      it!=d_processors.end();it++) {
-    it.value()->rotateLogs(now);
-  }
+  return d_profile;
 }
 
 

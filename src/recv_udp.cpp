@@ -25,8 +25,8 @@
 
 #include "recv_udp.h"
 
-RecvUdp::RecvUdp(Profile *c,int recv_num,QObject *parent)
-  : Receiver(c,recv_num,parent)
+RecvUdp::RecvUdp(const QString &id,Profile *p,QObject *parent)
+  : Receiver(id,p,parent)
 {
   d_socket=new QUdpSocket(this);
   connect(d_socket,SIGNAL(readyRead()),this,SLOT(readyReadData()));
@@ -44,11 +44,12 @@ Receiver::Type RecvUdp::type() const
 
 bool RecvUdp::start(QString *err_msg)
 {
-  bool ok=false;
-
-  unsigned udp_port=config()->
-    intValue(QString::asprintf("Receiver%d",1+receiverNumber()),"Port",514,&ok);
-  if((!ok)||(udp_port>0xFFFF)) {
+  QList<int> ivalues=profile()->intValues("Receiver",id(),"Port");
+  unsigned udp_port=514;  // Default value
+  if(!ivalues.isEmpty()) {
+    udp_port=ivalues.last();
+  }
+  if(udp_port>0xFFFF) {
     *err_msg=QObject::tr("invalid port specified");
     return false;
   }
@@ -67,7 +68,7 @@ void RecvUdp::readyReadData()
   QNetworkDatagram dg=d_socket->receiveDatagram();
   Message *msg=new Message(dg.data());
   if(msg->isValid()) {
-    processMessage(msg,dg.senderAddress());
+    emit messageReceived(msg,dg.senderAddress());
   }
   delete msg;
 }

@@ -32,6 +32,7 @@
 
 #include "cmdswitch.h"
 #include "lwsyslogger.h"
+#include "proc_factory.h"
 #include "recv_factory.h"
 
 //
@@ -39,7 +40,7 @@
 //
 bool no_local_syslog=false;
 bool global_exiting=false;
-QList<Receiver *> *syslog_receivers=NULL;
+QMap<QString,Processor *> *syslog_processors=NULL;
 
 void SigHandler(int signo)
 {
@@ -66,25 +67,26 @@ void LocalSyslog(Message::Severity severity,const char *fmt,...)
       if(debug) {
 	fprintf(stderr,"%s\n",buffer);
       }
-      if(syslog_receivers==NULL) {
+      if(syslog_processors==NULL) {
 	early_severities.push_back(severity);
 	early_msgs.push_back(buffer);
       }
       else {
 	for(int i=0;i<early_msgs.size();i++) {
 	  msg=new Message(early_severities.at(i),early_msgs.at(i));
-	  for(int j=0;j<syslog_receivers->size();j++) {
-	    syslog_receivers->at(j)->
-	      processMessage(msg,QHostAddress("127.0.0.1"));
+	  for(QMap<QString,Processor *>::const_iterator it=
+		syslog_processors->begin();it!=syslog_processors->end();it++) {
+	    it.value()->process(msg,QHostAddress("127.0.0.1"));
 	  }
 	  delete msg;
 	}
 	early_msgs.clear();
 	early_severities.clear();
+
 	msg=new Message(severity,buffer);
-	for(int i=0;i<syslog_receivers->size();i++) {
-	  syslog_receivers->at(i)->
-	    processMessage(msg,QHostAddress("127.0.0.1"));
+	for(QMap<QString,Processor *>::const_iterator it=
+	      syslog_processors->begin();it!=syslog_processors->end();it++) {
+	  it.value()->process(msg,QHostAddress("127.0.0.1"));
 	}
 	delete msg;
       }
@@ -100,7 +102,9 @@ MainObject::MainObject(QObject *parent)
   QString config_filename=DEFAULT_CONFIG_FILENAME;
   QDateTime rotate_logfiles_datetime=QDateTime::currentDateTime();
   bool rotate_logfiles=false;
-
+  bool dry_run=false;
+  QString err_msg;
+  
   //
   // Read Switches
   //
@@ -112,6 +116,10 @@ MainObject::MainObject(QObject *parent)
     }
     if(cmd->key(i)=="-d") {
       debug=true;
+      cmd->setProcessed(i,true);
+    }
+    if(cmd->key(i)=="--dry-run") {
+      dry_run=true;
       cmd->setProcessed(i,true);
     }
     if(cmd->key(i)=="--no-local-syslog") {
@@ -139,121 +147,50 @@ MainObject::MainObject(QObject *parent)
   }
 
   //
-  // Verify that the LogRoot is configured correctly
+  // Create Configuration Context
   //
-  d_config=new Profile();
-  if(!d_config->loadFile(config_filename)) {
+  d_profile=new Profile(true);
+  if(!d_profile->loadFile(config_filename)) {
     fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\"\n",
 	    config_filename.toUtf8().constData());
     exit(1);
   }
-  QString logroot=d_config->stringValue("Global","LogRoot",DEFAULT_LOGROOT);
-  QString service_user=
-    d_config->stringValue("Global","ServiceUser",DEFAULT_SERVICE_USER);
-  struct passwd *passwd=getpwnam(service_user.toUtf8());
-  if(passwd==NULL) {
-    fprintf(stderr,
-	    "lwsyslogger: cannot find ServiceUser \"%s\" [No such user]\n",
-	    service_user.toUtf8().constData());
-    exit(1);
-  }
-  if(passwd->pw_uid==0) {
-    fprintf(stderr,"lwsyslogger: running under UID \"0\" is not supported\n");
-    exit(1);
-  }
-  d_uid=passwd->pw_uid;
 
-  QString service_group=
-    d_config->stringValue("Global","ServiceGroup",DEFAULT_SERVICE_GROUP);
-  struct group *group=getgrnam(service_group.toUtf8());
-  if(group==NULL) {
-    fprintf(stderr,
-	    "lwsyslogger: cannot find ServiceGroup \"%s\" [No such group]\n",
-	    service_group.toUtf8().constData());
-    exit(1);
-  }
-  d_gid=group->gr_gid;
-  
-  struct stat statbuf;
-  memset(&statbuf,0,sizeof(statbuf));
-  if(stat(logroot.toUtf8(),&statbuf)!=0) {
-    fprintf(stderr,
-	    "lwsyslogger: unable to stat LogRoot directory \"%s\" [%s]\n",
-	    logroot.toUtf8().constData(),strerror(errno));
-    exit(1);
-  }
-  if(statbuf.st_uid!=d_uid) {
-    fprintf(stderr,
-	    "lwsyslogger: LogRoot directory \"%s\" not owned by user \"%s\"\n",
-	    logroot.toUtf8().constData(),service_user.toUtf8().constData());
-    exit(1);
-  }
-  if(statbuf.st_gid!=d_gid) {
-    fprintf(stderr,
-	    "lwsyslogger: LogRoot directory \"%s\" not owned by group \"%s\"\n",
-	    logroot.toUtf8().constData(),service_group.toUtf8().constData());
-    exit(1);
-  }
-  if((statbuf.st_mode&S_IRUSR)==0) {
-    fprintf(stderr,
-	    "lwsyslogger: LogRoot directory \"%s\" is not readable by user \"%s\"\n",
-	    logroot.toUtf8().constData(),service_user.toUtf8().constData());
-    exit(1);
-  }
-  if((statbuf.st_mode&S_IWUSR)==0) {
-    fprintf(stderr,
-	    "lwsyslogger: LogRoot directory \"%s\" is not writeable by user \"%s\"\n",
-	    logroot.toUtf8().constData(),service_user.toUtf8().constData());
+  //
+  // Verify that the LogRoot is configured correctly
+  //
+  if(!ConfigureLogRoot(&err_msg)) {
+    fprintf(stderr,"lwsyslogger: %s\n",err_msg.toUtf8().constData());
     exit(1);
   }
 
-  d_logroot_dir=new QDir(logroot);
-  
+  //
+  // Start Processors
+  //
+  if(!StartProcessors(&err_msg,dry_run)) {
+    fprintf(stderr,"lwsyslogger: %s\n",err_msg.toUtf8().constData());
+    exit(1);
+  }
+
   //
   // Start Receivers
   //
-  Receiver *recv=NULL;
-  QString err_msg;
-  bool ok=false;
-  int count=0;
-  QString section=QString::asprintf("Receiver%d",1+count);
-  Receiver::Type type=
-    Receiver::typeFromString(d_config->stringValue(section,"Type",0,&ok));
-  while(ok) {
-    if(type==Receiver::TypeLast) {
-      fprintf(stderr,"lwsyslogger: unknown receiver type \"%s\"\n",
-	      d_config->stringValue(section,"Type").toUtf8().constData());
-      exit(1);
-    }
-    if((recv=ReceiverFactory(type,d_config,count,this))==NULL) {
-      fprintf(stderr,"lwsyslogger: failed to initialize receiver type \"%s\"\n",
-	      Receiver::typeString(type).toUtf8().constData());
-      exit(1);
-    }
-    if(!recv->start(&err_msg)) {
-      fprintf(stderr,"lwsyslogger: failed to start %s [%s]\n",
-	      section.toUtf8().constData(),err_msg.toUtf8().constData());
-      exit(1);
-    }
-    d_receivers.push_back(recv);
-    
-    count++;
-    section=QString::asprintf("Receiver%d",1+count);
-    type=(Receiver::Type)d_config->intValue(section,"Port",0,&ok);
+  if(!StartReceivers(&err_msg)) {
+    fprintf(stderr,"lwsyslogger: %s\n",err_msg.toUtf8().constData());
+    exit(1);
   }
-  syslog_receivers=&d_receivers;
 
   //
   // Drop Root Permissions
   //
   if(setgid(d_gid)!=0) {
     fprintf(stderr,"lwsyslogger: failed to set GID for \"%s\" [%s]\n",
-	    service_group.toUtf8().constData(),strerror(errno));
+	    d_group_name.toUtf8().constData(),strerror(errno));
     exit(1);
   }
   if(setuid(d_uid)!=0) {
     fprintf(stderr,"lwsyslogger: failed to set UID for \"%s\" [%s]\n",
-	    service_user.toUtf8().constData(),strerror(errno));
+	    d_user_name.toUtf8().constData(),strerror(errno));
     exit(1);
   }
 
@@ -273,8 +210,9 @@ MainObject::MainObject(QObject *parent)
   // Force Log Rotation
   //
   if(rotate_logfiles) {
-    for(int i=0;i<d_receivers.size();i++) {
-      d_receivers.at(i)->rotateLogs(rotate_logfiles_datetime);
+    for(QMap<QString,Processor *>::const_iterator it=d_processors.begin();
+	it!=d_processors.end();it++) {
+      it.value()->rotateLogs(rotate_logfiles_datetime);
     }
     global_exiting=true;
   }
@@ -287,6 +225,184 @@ void MainObject::exitData()
     LocalSyslog(Message::SeverityNotice,"lwsyslogger v%s exiting",VERSION);
     exit(0);
   }
+}
+
+
+bool MainObject::ConfigureLogRoot(QString *err_msg)
+{
+  QStringList values=d_profile->stringValues("Global","Default","LogRoot");
+  QString logroot=DEFAULT_LOGROOT;
+  if(!values.isEmpty()) {
+    logroot=values.last();
+  }
+
+  values=d_profile->stringValues("Global","Default","ServiceUser");
+  d_user_name=DEFAULT_SERVICE_USER;
+  if(!values.isEmpty()) {
+    d_user_name=values.last();
+  }
+
+  struct passwd *passwd=getpwnam(d_user_name.toUtf8());
+  if(passwd==NULL) {
+    *err_msg=QString::asprintf("cannot find ServiceUser \"%s\" [No such user]",
+			       d_user_name.toUtf8().constData());
+    return false;
+  }
+  if(passwd->pw_uid==0) {
+    *err_msg=QString::asprintf("running under UID \"0\" is not supported");
+    return false;
+  }
+  d_uid=passwd->pw_uid;
+
+  values=d_profile->stringValues("Global","Default","ServiceGroup");
+  d_group_name=DEFAULT_SERVICE_GROUP;
+  if(!values.isEmpty()) {
+    d_group_name=values.last();
+  }
+
+  struct group *group=getgrnam(d_group_name.toUtf8());
+  if(group==NULL) {
+    *err_msg=QString::asprintf(
+	    "lwsyslogger: cannot find ServiceGroup \"%s\" [No such group]",
+	    d_group_name.toUtf8().constData());
+    return false;
+  }
+  d_gid=group->gr_gid;
+
+  struct stat statbuf;
+  memset(&statbuf,0,sizeof(statbuf));
+  if(stat(logroot.toUtf8(),&statbuf)!=0) {
+    *err_msg=QString::asprintf(
+	    "lwsyslogger: unable to stat LogRoot directory \"%s\" [%s]",
+	    logroot.toUtf8().constData(),strerror(errno));
+    return false;
+  }
+  if(statbuf.st_uid!=d_uid) {
+    *err_msg=QString::asprintf(
+	    "lwsyslogger: LogRoot directory \"%s\" not owned by user \"%s\"",
+	    logroot.toUtf8().constData(),d_user_name.toUtf8().constData());
+    return false;
+  }
+  if(statbuf.st_gid!=d_gid) {
+    *err_msg=QString::asprintf(
+	    "lwsyslogger: LogRoot directory \"%s\" not owned by group \"%s\"",
+	    logroot.toUtf8().constData(),d_group_name.toUtf8().constData());
+    return false;
+  }
+  if((statbuf.st_mode&S_IRUSR)==0) {
+    *err_msg=QString::asprintf(
+      "lwsyslogger: LogRoot directory \"%s\" is not readable by user \"%s\"",
+	    logroot.toUtf8().constData(),d_user_name.toUtf8().constData());
+    return false;
+  }
+  if((statbuf.st_mode&S_IWUSR)==0) {
+    *err_msg=QString::asprintf(
+      "lwsyslogger: LogRoot directory \"%s\" is not writeable by user \"%s\"",
+	    logroot.toUtf8().constData(),d_user_name.toUtf8().constData());
+    return false;
+  }
+
+  d_logroot_dir=new QDir(logroot);
+
+  return true;
+}
+
+
+bool MainObject::StartProcessors(QString *err_msg,bool dry_run)
+{
+  QString err_msg2;
+  Processor *proc=NULL;
+  QStringList ids=d_profile->sectionIds("Processor");
+  for(int i=0;i<ids.size();i++) {
+    QStringList values=d_profile->stringValues("Processor",ids.at(i),"Type");
+    if(values.isEmpty()) {
+      *err_msg=QString::asprintf("%s: no processor type specified",
+				 ids.at(i).toUtf8().constData());
+      return false;
+    }
+    QString procstr=
+      d_profile->stringValues("Processor",ids.at(i),"Type").last();
+    Processor::Type type=Processor::typeFromString(values.last());
+    if(type==Processor::TypeLast) {
+      *err_msg=QString::asprintf("%s: unknown processor type \"%s\"",
+				 ids.at(i).toUtf8().constData(),
+				 values.last().toUtf8().constData());
+      return false;
+    }
+    if((proc=ProcessorFactory(type,ids.at(i),d_profile,this))==NULL) {
+      *err_msg=QString::asprintf(
+	      "%s: failed to initialize processor type \"%s\"",
+	      ids.at(i).toUtf8().constData(),
+	      Processor::typeString(type).toUtf8().constData());
+      return false;
+    }
+    proc->setDryRun(dry_run);
+    if(!proc->start(&err_msg2)) {
+      *err_msg=QString::asprintf("%s: failed to start processor [%s]",
+				 ids.at(i).toUtf8().constData(),
+				 err_msg2.toUtf8().constData());
+      return false;
+    }
+    d_processors[ids.at(i)]=proc;
+  }
+  
+  return true;
+}
+
+
+bool MainObject::StartReceivers(QString *err_msg)
+{
+  QStringList values;
+  Receiver *recv=NULL;
+  QStringList ids=d_profile->sectionIds("Receiver");
+
+  for(int i=0;i<ids.size();i++) {
+    values=d_profile->stringValues("Receiver",ids.at(i),"Type");
+    if(values.isEmpty()) {
+      *err_msg=QString::asprintf("%s: no receiver type specified",
+				 ids.at(i).toUtf8().constData());
+      return false;
+    }
+    Receiver::Type type=Receiver::typeFromString(values.last());
+    if(type==Receiver::TypeLast) {
+      *err_msg=QString::asprintf("%s: unknown receiver type \"%s\"",
+				 ids.at(i).toUtf8().constData(),
+				 values.last().toUtf8().constData());
+      return false;
+    }
+    if((recv=ReceiverFactory(type,ids.at(i),d_profile,this))==NULL) {
+      *err_msg=QString::asprintf(
+	   "%s: failed to initialize receiver type \"%s\"",
+	   ids.at(i).toUtf8().constData(),
+	   Receiver::typeString(type).toUtf8().constData());
+      return false;
+    }
+    QString err_msg2;
+    if(!recv->start(&err_msg2)) {
+      *err_msg=QString::asprintf("%s: failed to start receiver [%s]",
+				 ids.at(i).toUtf8().constData(),
+				 err_msg2.toUtf8().constData());
+      return false;
+    }
+    d_receivers[ids.at(i)]=recv;
+    QStringList processors=
+      d_profile->stringValues("Receiver",ids.at(i),"Processor");
+    for(int j=0;j<processors.size();j++) {
+      Processor *proc=d_processors.value(processors.at(j));
+      if(proc==NULL) {
+	*err_msg=QString::asprintf(
+	     "unknown processor \"%s\" specified in receiver \"%s\"",
+	     processors.at(j).toUtf8().constData(),
+	     ids.at(i).toUtf8().constData());
+	return false;
+      }
+      connect(recv,SIGNAL(messageReceived(Message *,const QHostAddress &)),
+	      proc,SLOT(process(Message *,const QHostAddress &)));
+    }
+  }
+  syslog_processors=&d_processors;
+
+  return true;
 }
 
 

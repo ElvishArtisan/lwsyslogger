@@ -35,22 +35,24 @@ class Processor : public QObject
   Q_OBJECT
  public:
   enum Type {TypeSimpleFile=0,TypeLast=1};
-  Processor(Profile *c,int recv_num,int proc_num,QObject *parent=0);
+  Processor(const QString &id,Profile *c,QObject *parent=0);
+  QString id() const;
+  bool dryRun() const;
+  void setDryRun(bool state);
   virtual Type type() const=0;
   virtual bool start(QString *err_msg);
-  void process(Message *msg,const QHostAddress &from_addr);
-  QString idString() const;
   virtual void rotateLogs(const QDateTime &now);
   static QString typeString(Type type);
   static Type typeFromString(const QString &str);
+
+ public slots:
+  void process(Message *msg,const QHostAddress &from_addr);
 
  protected:
   virtual void processMessage(Message *msg,const QHostAddress &from_addr)=0;
   void rotateLogFile(const QString &filename,const QDateTime &now) const;
   bool expireLogFile(const QString &pathname,const QDateTime &now) const;
   Profile *config() const;
-  int receiverNumber() const;
-  int processorNumber() const;
   bool processIf(Message::Facility facility) const;
   bool processIf(Message::Severity severity) const;
   QDir *logRootDirectory() const;
@@ -67,14 +69,14 @@ class Processor : public QObject
   uint32_t MakeMask(uint32_t num) const;
   uint32_t d_facility_mask;
   uint32_t d_severity_mask;
-  Profile *d_config;
+  Profile *d_profile;
   QTimer *d_log_rotation_timer;
   QTime d_log_rotation_time;
   int d_old_log_purge_age;
   int d_log_rotation_age;
   int d_log_rotation_size;
-  int d_receiver_number;
-  int d_processor_number;
+  QString d_id;
+  bool d_dry_run;
   QDir *d_log_root_directory;
 };
 

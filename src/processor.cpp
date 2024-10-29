@@ -27,48 +27,73 @@
 #include "local_syslog.h"
 #include "processor.h"
 
-Processor::Processor(Profile *c,int recv_num,int proc_num,QObject *parent)
+Processor::Processor(const QString &id,Profile *p,QObject *parent)
   : QObject(parent)
 {
   bool ok=false;
   QString err_msg;
+  QStringList values;
   
-  d_config=c;
-  d_receiver_number=recv_num;
-  d_processor_number=proc_num;
-  d_log_root_directory=new QDir(c->stringValue("Global","LogRoot","",&ok));
-  if(!ok) {
+  d_id=id;
+  d_profile=p;
+  d_dry_run=false;
+
+  values=p->stringValues("Global","Default","LogRoot");
+  if(values.isEmpty()) {
     fprintf(stderr,"lwsyslogger: unable to load location of \"LogRoot\"\n");
     exit(1);
   }
-
-  QString section=QString::asprintf("Receiver%d",1+recv_num);
-  QString proc_base=QString::asprintf("Processor%d",1+proc_num);
+  d_log_root_directory=new QDir(values.last());
 
   //
-  // Load Facility/Severity Filter Values
+  // Facility Values
   //
-  QString param=c->stringValue(section,proc_base+"Facility",0,&ok);
-  if(ok) {
-    d_facility_mask=MakeFacilityMask(param,&ok,&err_msg);
-  }
-  param=c->stringValue(section,proc_base+"Severity",0,&ok);
-  if(ok) {
-    d_severity_mask=MakeSeverityMask(param,&ok,&err_msg);
+  QStringList strings=d_profile->stringValues("Processor",id,"Facility");
+  d_facility_mask=MakeFacilityMask(strings.join(","),&ok,&err_msg);
+  if(!ok) {
+    fprintf(stderr,
+	  "lwsyslogger: invalid facility string \"%s\" for processor \"%s\"\n",
+	    strings.join(",").toUtf8().constData(),id.toUtf8().constData());
+    exit(1);
   }
 
   //
-  // Load Log Rotation Values
+  // Severity Values
   //
-  d_log_rotation_age=
-    config()->intValue(section,proc_base+"LogRotationAge");
-  d_log_rotation_size=config()->intValue(section,proc_base+"LogRotationSize");
-  d_old_log_purge_age=config()->intValue(section,proc_base+"OldLogPurgeAge");
-  param=c->stringValue(section,proc_base+"LogRotationTime","00:00");
-  d_log_rotation_time=QTime::fromString(param,"hh:mm");
+  strings=d_profile->stringValues("Processor",id,"Severity");
+  d_severity_mask=MakeSeverityMask(strings.join(","),&ok,&err_msg);
+  if(!ok) {
+    fprintf(stderr,
+	  "lwsyslogger: invalid severity string \"%s\" for processor \"%s\"\n",
+	    strings.join(",").toUtf8().constData(),id.toUtf8().constData());
+    exit(1);
+  }
+
+  //
+  // Log Rotation Values
+  //
+  d_log_rotation_age=0;  // Default value
+  QList<int> ivalues=p->intValues("Processor",id,"LogRotationAge");
+  if(!ivalues.isEmpty()) {
+    d_log_rotation_age=ivalues.last();
+  }
+  d_log_rotation_size=0;  // Default value
+  ivalues=p->intValues("Processor",id,"LogRotationSize");
+  if(!ivalues.isEmpty()) {
+    d_log_rotation_size=ivalues.last();
+  }
+  d_old_log_purge_age=0;  // Default value
+  ivalues=p->intValues("Processor",id,"OldLogPurgeAge");
+  if(!ivalues.isEmpty()) {
+    d_old_log_purge_age=ivalues.last();
+  }
+  d_log_rotation_time=QTime();  // Default value
+  QList<QTime> tvalues=p->timeValues("Processor",id,"LogRotationTime");
+  if(!tvalues.isEmpty()) {
+    d_log_rotation_time=tvalues.last();
+  }
   if(!d_log_rotation_time.isValid()) {
-    fprintf(stderr,"invalid time value \"%s\" in %sLogRotationTime\n",
-	    param.toUtf8().constData(),proc_base.toUtf8().constData());
+    fprintf(stderr,"invalid time value in LogRotationTime\n");
     exit(1);
   }
   d_log_rotation_timer=new QTimer(this);
@@ -78,42 +103,33 @@ Processor::Processor(Profile *c,int recv_num,int proc_num,QObject *parent)
 }
 
 
+QString Processor::id() const
+{
+  return d_id;
+}
+
+
+bool Processor::dryRun() const
+{
+  return d_dry_run;
+}
+
+
+void Processor::setDryRun(bool state)
+{
+  d_dry_run=state;
+}
+
+
 bool Processor::start(QString *err_msg)
 {
   return true;
 }
 
 
-void Processor::process(Message *msg,const QHostAddress &from_addr)
-{
-  if(processIf(msg->severity())&&processIf(msg->facility())) {
-    processMessage(msg,from_addr);
-  }
-}
-
-
 Profile *Processor::config() const
 {
-  return d_config;
-}
-
-
-int Processor::receiverNumber() const
-{
-  return d_receiver_number;
-}
-
-
-int Processor::processorNumber() const
-{
-  return d_processor_number;
-}
-
-
-QString Processor::idString() const
-{
-  return QString::asprintf("Receiver%d:%d",
-			   1+receiverNumber(),1+processorNumber());
+  return d_profile;
 }
 
 
@@ -151,11 +167,19 @@ Processor::Type Processor::typeFromString(const QString &str)
 }
 
 
+void Processor::process(Message *msg,const QHostAddress &from_addr)
+{
+  if(processIf(msg->severity())&&processIf(msg->facility())) {
+    processMessage(msg,from_addr);
+  }
+}
+
+
 void Processor::rotateLogFile(const QString &filename,
 			      const QDateTime &now) const
 {
   QFileInfo info(filename);
-  
+
   if(((d_log_rotation_size>0)&&
       (info.size()>=d_log_rotation_size))||
      ((d_log_rotation_age>0)&&
@@ -178,16 +202,24 @@ void Processor::rotateLogFile(const QString &filename,
 	  QString::asprintf("-%d",1+count);
       }
     }
-    if(rename(filename.toUtf8(),new_filename.toUtf8())==0) {
-      LocalSyslog(Message::SeverityDebug,
-		  "%s rotated log file \"%s\" to \"%s\"",
-		  idString().toUtf8().constData(),
-		  filename.toUtf8().constData(),
-		  new_filename.toUtf8().constData());
+    if(d_dry_run) {
+      printf("Processor %s: would rotate file \"%s\" to \"%s\"\n",
+	     id().toUtf8().constData(),
+	     filename.toUtf8().constData(),
+	     new_filename.toUtf8().constData());
     }
     else {
-      LocalSyslog(Message::SeverityWarning,"log rotation of \"%s\" failed [%s]",
-		  filename.toUtf8().constData(),strerror(errno));
+      if(rename(filename.toUtf8(),new_filename.toUtf8())==0) {
+	LocalSyslog(Message::SeverityDebug,
+		    "%s rotated log file \"%s\" to \"%s\"",
+		    id().toUtf8().constData(),
+		    filename.toUtf8().constData(),
+		    new_filename.toUtf8().constData());
+      }
+      else {
+	LocalSyslog(Message::SeverityWarning,"log rotation of \"%s\" failed [%s]",
+		    filename.toUtf8().constData(),strerror(errno));
+      }
     }
   }
 }
@@ -196,25 +228,35 @@ void Processor::rotateLogFile(const QString &filename,
 bool Processor::expireLogFile(const QString &pathname,
 			      const QDateTime &now) const
 {
+  //  printf("expireLogFile(%s,%s)\n",
+  //	 pathname.toUtf8().constData(),now.toString("yyyy-MM-dd hh:mm:ss").toUtf8().constData());
+  
   QFileInfo info(pathname);
   bool ret=false;
   
   if((d_old_log_purge_age>0)&&
      (info.fileTime(QFileDevice::FileBirthTime)<
       now.addDays(-d_old_log_purge_age))) {
-    if(unlink(info.filePath().toUtf8())==0) {
-      LocalSyslog(Message::SeverityDebug,
-		  "%s purged log file \"%s\"",
-		  idString().toUtf8().constData(),
-		  info.filePath().toUtf8().constData());
-      ret=true;
+    if(d_dry_run) {
+      printf("Processor %s: would purge file \"%s\"\n",
+	     id().toUtf8().constData(),
+	     info.filePath().toUtf8().constData());
     }
     else {
-      LocalSyslog(Message::SeverityWarning,
-		  "%s failed to purge log file \"%s\" [%s]",
-		  idString().toUtf8().constData(),
-		  info.filePath().toUtf8().constData(),
-		  strerror(errno));
+      if(unlink(info.filePath().toUtf8())==0) {
+	LocalSyslog(Message::SeverityDebug,
+		    "%s purged log file \"%s\"",
+		    id().toUtf8().constData(),
+		    info.filePath().toUtf8().constData());
+	ret=true;
+      }
+      else {
+	LocalSyslog(Message::SeverityWarning,
+		    "%s failed to purge log file \"%s\" [%s]",
+		    id().toUtf8().constData(),
+		    info.filePath().toUtf8().constData(),
+		    strerror(errno));
+      }
     }
   }
 
@@ -249,17 +291,19 @@ void Processor::logRotationData()
 
 void Processor::StartLogRotationTimer()
 {
-  QDateTime now=QDateTime::currentDateTime();
-  int64_t msec=
-    now.msecsTo(QDateTime(now.date(),d_log_rotation_time.addSecs(1)));
-  if(msec<0) {
-    msec=now.msecsTo(QDateTime(now.date().addDays(1),
-			       d_log_rotation_time.addSecs(1)));
+  if(!d_log_rotation_time.isNull()) {
+    QDateTime now=QDateTime::currentDateTime();
+    int64_t msec=
+      now.msecsTo(QDateTime(now.date(),d_log_rotation_time.addSecs(1)));
+    if(msec<0) {
+      msec=now.msecsTo(QDateTime(now.date().addDays(1),
+				 d_log_rotation_time.addSecs(1)));
+    }
+    d_log_rotation_timer->start(msec);
+    LocalSyslog(Message::SeverityDebug,
+	      "processor %s: started log rotation timer: %ld ms",
+		id().toUtf8().constData(),msec);
   }
-  d_log_rotation_timer->start(msec);
-  LocalSyslog(Message::SeverityDebug,
-	      "Receiver%d:%d: started log rotation timer: %ld ms",
-	      1+receiverNumber(),1+processorNumber(),msec);
 }
 
 
@@ -268,7 +312,7 @@ uint32_t Processor::MakeSeverityMask(const QString &params,bool *ok,
 {
   uint32_t mask=0;
   
-  *ok=false;
+  *ok=true;
 
   QStringList f0=params.split(",",Qt::KeepEmptyParts);
   for(int i=0;i<f0.size();i++) {
@@ -316,7 +360,7 @@ uint32_t Processor::MakeFacilityMask(const QString &params,bool *ok,
 {
   uint32_t mask=0;
   
-  *ok=false;
+  *ok=true;
 
   QStringList f0=params.split(",",Qt::KeepEmptyParts);
   for(int i=0;i<f0.size();i++) {

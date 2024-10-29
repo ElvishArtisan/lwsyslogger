@@ -20,14 +20,14 @@
 
 #include "recv_udp.h"
 
-Receiver *ReceiverFactory(Receiver::Type type,Profile *c,int recv_num,
+Receiver *ReceiverFactory(Receiver::Type type,const QString &id,Profile *p,
 			  QObject *parent)
 {
   Receiver *recv=NULL;
   
   switch(type) {
   case Receiver::TypeUdp:
-    recv=new RecvUdp(c,recv_num,parent);
+    recv=new RecvUdp(id,p,parent);
     break;
 
   case Receiver::TypeLast:

@@ -26,23 +26,16 @@
 #include "local_syslog.h"
 #include "proc_simplefile.h"
 
-ProcSimpleFile::ProcSimpleFile(Profile *c,int recv_num,int proc_num,QObject *parent)
-  : Processor(c,recv_num,proc_num,parent)
+ProcSimpleFile::ProcSimpleFile(const QString &id,Profile *p,QObject *parent)
+  : Processor(id,p,parent)
 {
-  bool ok=false;
-  QString section=QString::asprintf("Receiver%d",1+receiverNumber());
-  QString proc_base=QString::asprintf("Processor%d",1+proc_num);
-  
-  //
-  // Get Base Filename and Pathname
-  //
-  d_base_pathname=logRootDirectory()->path()+"/"+
-    config()->stringValue(section,proc_base+"BaseFilename","",&ok);
-  if(!ok) {
-    fprintf(stderr,"lwsyslogger: missing BaseFilename in %s\n",
-	    idString().toUtf8().constData());
+  QStringList values=p->stringValues("Processor",id,"BaseFilename");
+  if(values.isEmpty()) {
+    fprintf(stderr,"lwsyslogger: missing BaseFilename in processor %s\n",
+	    id.toUtf8().constData());
     exit(1);
   }
+  d_base_pathname=logRootDirectory()->path()+"/"+values.last();
   QStringList f0=d_base_pathname.split("/",Qt::KeepEmptyParts);
   d_base_filename=f0.last();
   f0.removeLast();
@@ -52,20 +45,18 @@ ProcSimpleFile::ProcSimpleFile(Profile *c,int recv_num,int proc_num,QObject *par
   else {
     d_base_dir=new QDir(f0.join("/"));
   }
-  LocalSyslog(Message::SeverityDebug,"%s using base_dir \"%s\"",
-	      idString().toUtf8().constData(),
+  LocalSyslog(Message::SeverityDebug,"processor \"%s\" using base_dir \"%s\"",
+	      id.toUtf8().constData(),
 	      d_base_dir->path().toUtf8().constData());
   d_base_file=NULL;
 
-  //
-  // Get Record Template
-  //
-  d_template=config()->stringValue(section,proc_base+"Template","",&ok);
-  if(!ok) {
-    fprintf(stderr,"lwsyslogger: missing Template in %s\n",
-	    idString().toUtf8().constData());
+  values=p->stringValues("Processor",id,"Template");
+  if(values.isEmpty()) {
+    fprintf(stderr,"lwsyslogger: missing Template in processor \"%s\"\n",
+	    id.toUtf8().constData());
     exit(1);
   }
+  d_template=values.last();
 }
 
 
@@ -77,6 +68,8 @@ Processor::Type ProcSimpleFile::type() const
 
 void ProcSimpleFile::rotateLogs(const QDateTime &now)
 {
+  printf("rotateLogs(%s)\n",now.toString("yyyy-MM-dd hh:mm:ss").toUtf8().constData());
+  
   //
   // Rotate Base File
   //
@@ -87,8 +80,8 @@ void ProcSimpleFile::rotateLogs(const QDateTime &now)
   rotateLogFile(d_base_pathname,now);
   if((d_base_file=fopen(d_base_pathname.toUtf8(),"a"))==NULL) {
     LocalSyslog(Message::SeverityWarning,
-		"%s: failed to reopen logfile %s [%s]",
-		idString().toUtf8().constData(),
+		"processor %s: failed to reopen logfile %s [%s]",
+		id().toUtf8().constData(),
 		d_base_pathname.toUtf8().constData(),strerror(errno));
   }
 
@@ -106,6 +99,8 @@ void ProcSimpleFile::rotateLogs(const QDateTime &now)
 
 void ProcSimpleFile::processMessage(Message *msg,const QHostAddress &from_addr)
 {
+  //  printf("MSG: %s\n",msg->dump().toUtf8().constData());
+  
   if(d_base_file==NULL) {
     d_base_file=fopen(d_base_pathname.toUtf8(),"a");
   }

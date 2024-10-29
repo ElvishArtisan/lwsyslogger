@@ -22,11 +22,12 @@
 #define LWSYSLOGGER_H
 
 #include <QDir>
-#include <QList>
+#include <QMap>
 #include <QObject>
 #include <QTimer>
 
 #include "local_syslog.h"
+#include "processor.h"
 #include "profile.h"
 #include "receiver.h"
 
@@ -41,7 +42,7 @@
 //
 // Global RIPCD Definitions
 //
-#define LWSYSLOGGER_USAGE "[--config=<filename>] [--rotate-logfiles[=YYYY-MM-DD]] [--no-local-syslog] [-d]\n\n"
+#define LWSYSLOGGER_USAGE "[--config=<filename>] [--rotate-logfiles[=YYYY-MM-DD]] [--dry-run] [--no-local-syslog] [-d]\n\n"
 
 class MainObject : public QObject
 {
@@ -53,12 +54,17 @@ class MainObject : public QObject
   void exitData();
    
  private:
-  QList<Receiver *> d_receivers;
+  bool ConfigureLogRoot(QString *err_msg);
+  bool StartProcessors(QString *err_msg,bool dry_run);
+  bool StartReceivers(QString *err_msg);
+  QMap<QString,Receiver *> d_receivers;
+  QMap<QString,Processor *> d_processors;
   QDir *d_logroot_dir;
   uid_t d_uid;
   gid_t d_gid;
+  QString d_user_name;
   QString d_group_name;
-  Profile *d_config;
+  Profile *d_profile;
   QTimer *d_exit_timer;
   friend void LocalSyslog(int prio,const QString &msg);
 };
