@@ -57,6 +57,15 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
 	    strings.join(",").toUtf8().constData(),id.toUtf8().constData());
     exit(1);
   }
+  QString maskstr;
+  for(int i=0;i<25;i++) {
+    if((d_facility_mask&(1<<i))!=0) {
+      maskstr+=Message::facilityString((Message::Facility)i)+",";
+    }
+  }
+  maskstr=maskstr.left(maskstr.length()-1);
+  lsyslog(Message::SeverityDebug,"processing facilities: %s",
+  	  maskstr.toUtf8().constData());
 
   //
   // Severity Values
@@ -69,7 +78,16 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
 	    strings.join(",").toUtf8().constData(),id.toUtf8().constData());
     exit(1);
   }
-
+  maskstr="";
+  for(int i=0;i<9;i++) {
+    if((d_severity_mask&(1<<i))!=0) {
+      maskstr+=Message::severityString((Message::Severity)i)+",";
+    }
+  }
+  maskstr=maskstr.left(maskstr.length()-1);
+  lsyslog(Message::SeverityDebug,"processing severities: %s",
+	  maskstr.toUtf8().constData());
+  
   //
   // Upstream Addresses
   //
@@ -94,8 +112,6 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
 	  exit(1);
 	}
 	d_address_filter->addSubnet(addr,netmask);
-	lsyslog(Message::SeverityDebug,"added UpstreamAddress: %s/%d",
-		addr.toString().toUtf8().constData(),netmask);
       }
       else {
 	fprintf(stderr,
@@ -105,6 +121,8 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
       }
     }
   }
+  lsyslog(Message::SeverityDebug,"processing addresses: %s",
+	  d_address_filter->subnets().toUtf8().constData());
 
   //
   // Log Rotation Values
@@ -308,11 +326,7 @@ void Processor::lsyslog(Message::Severity severity,const char *fmt,...) const
 
   va_list args;
   va_start(args,fmt);
-  if(vsnprintf(buffer,1024,fmt,args)>0) {
-    if(debug) {
-      fprintf(stderr,"%s\n",buffer);
-    }
-  }
+  vsnprintf(buffer,1024,fmt,args);
   va_end(args);
   LocalSyslog(severity,"processor %s: %s",d_id.toUtf8().constData(),buffer);
 }
@@ -399,15 +413,30 @@ uint32_t Processor::MakeFacilityMask(const QString &params,bool *ok,
   QStringList f0=params.split(",",Qt::KeepEmptyParts);
   for(int i=0;i<f0.size();i++) {
     bool loop_ok=false;
+    bool negavate=false;
     QString str=f0.at(i).trimmed();
+    if(str.left(1)=="-") {
+      negavate=true;
+      str=str.right(str.length()-1);
+    }
     unsigned num=str.toUInt(&loop_ok);
     if(loop_ok&&(num<Message::FacilityLast)) {
-      mask=mask|(1<<num);
+      if(negavate) {
+	mask=mask&(0xFFFFFFFF^MakeMask(num));
+      }
+      else {
+	mask=mask|MakeMask(num);
+      }
     }
     else {
       Message::Facility facility=Message::facilityFromString(str);
       if(facility!=Message::FacilityLast) {
-	mask=mask|MakeMask((uint32_t)facility);
+	if(negavate) {
+	  mask=mask&(0xFFFFFFFF^MakeMask(facility));
+	}
+	else {
+	  mask=mask|MakeMask((uint32_t)facility);
+	}
 	continue;
       }
       else {

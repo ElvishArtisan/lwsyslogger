@@ -51,11 +51,7 @@ void Receiver::lsyslog(Message::Severity severity,const char *fmt,...) const
 
   va_list args;
   va_start(args,fmt);
-  if(vsnprintf(buffer,1024,fmt,args)>0) {
-    if(debug) {
-      fprintf(stderr,"%s\n",buffer);
-    }
-  }
+  vsnprintf(buffer,1024,fmt,args);
   va_end(args);
   LocalSyslog(severity,"receiver %s: %s",d_id.toUtf8().constData(),buffer);
 }

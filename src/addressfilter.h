@@ -31,7 +31,8 @@ class AddressFilter
   AddressFilter();
   void addSubnet(const QHostAddress &addr,int netmask);
   bool contains(const QHostAddress &addr) const;
-
+  QString subnets() const;
+  
  private:
   QList<QPair<QHostAddress,int> > d_subnets;
 };

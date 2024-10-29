@@ -51,3 +51,17 @@ bool AddressFilter::contains(const QHostAddress &addr) const
   //  printf("NO MATCH\n");
   return false;
 }
+
+
+QString AddressFilter::subnets() const
+{
+  QString ret;
+  
+  for(int i=0;i<d_subnets.size();i++) {
+    ret+=QString::asprintf("%s/%d,",
+			 d_subnets.at(i).first.toString().toUtf8().constData(),
+			 d_subnets.at(i).second);
+  }
+
+  return ret.left(ret.length()-1);
+}
