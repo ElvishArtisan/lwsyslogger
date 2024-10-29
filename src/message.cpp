@@ -238,99 +238,99 @@ QString Message::facilityString(Message::Facility facility)
 
   switch(facility) {
   case Message::FacilityKern:      // 0
-    ret="LOG_KERN";
+    ret="KERN";
     break;
 
   case Message::FacilityUser:      // 1
-    ret="LOG_USER";
+    ret="USER";
     break;
 
   case Message::FacilityMail:      // 2
-    ret="LOG_MAIL";
+    ret="MAIL";
     break;
 
   case Message::FacilityDaemon:    // 3
-    ret="LOG_DAEMON";
+    ret="DAEMON";
     break;
 
   case Message::FacilityAuth:      // 4
-    ret="LOG_AUTH";
+    ret="AUTH";
     break;
 
   case Message::FacilitySyslog:    // 5
-    ret="LOG_SYSLOG";
+    ret="SYSLOG";
     break;
 
   case Message::FacilityLpr:       // 6
-    ret="LOG_LPR";
+    ret="LPR";
     break;
 
   case Message::FacilityNews:      // 7
-    ret="LOG_NEWS";
+    ret="NEWS";
     break;
 
   case Message::FacilityUucp:      // 8
-    ret="LOG_UUCP";
+    ret="UUCP";
     break;
 
   case Message::FacilityCron:      // 9
-    ret="LOG_CRON";
+    ret="CRON";
     break;
 
   case Message::FacilityAuthpriv:  // 10
-    ret="LOG_AUTHPRIV";
+    ret="AUTHPRIV";
     break;
 
   case Message::FacilityFtp:       // 11
-    ret="LOG_FTP";
+    ret="FTP";
     break;
 
   case Message::FacilityNtp:        // 12
-    ret="LOG_NTP";
+    ret="NTP";
     break;
 
   case Message::FacilityAudit:           // 13
-    ret="LOG_AUDIT";
+    ret="AUDIT";
     break;
 
   case Message::FacilityAlert:           // 14
-    ret="LOG_ALERT";
+    ret="ALERT";
     break;
 
   case Message::FacilityClock:           // 15
-    ret="LOG_CLOCK";
+    ret="CLOCK";
     break;
 
   case Message::FacilityLocal0:    // 16
-    ret="LOG_LOCAL0";
+    ret="LOCAL0";
     break;
 
   case Message::FacilityLocal1:    // 17
-    ret="LOG_LOCAL1";
+    ret="LOCAL1";
     break;
 
   case Message::FacilityLocal2:    // 18
-    ret="LOG_LOCAL2";
+    ret="LOCAL2";
     break;
 
   case Message::FacilityLocal3:    // 19
-    ret="LOG_LOCAL3";
+    ret="LOCAL3";
     break;
 
   case Message::FacilityLocal4:    // 20
-    ret="LOG_LOCAL4";
+    ret="LOCAL4";
     break;
 
   case Message::FacilityLocal5:    // 21
-    ret="LOG_LOCAL5";
+    ret="LOCAL5";
     break;
 
   case Message::FacilityLocal6:    // 22
-    ret="LOG_LOCAL6";
+    ret="LOCAL6";
     break;
 
   case Message::FacilityLocal7:    // 23
-    ret="LOG_LOCAL7";
+    ret="LOCAL7";
     break;
 
   case Message::FacilityLast:      // 24
@@ -359,35 +359,35 @@ QString Message::severityString(Message::Severity severity)
 
   switch(severity) {
   case Message::SeverityEmerg:     // 0
-    ret="LOG_EMERG";
+    ret="EMERG";
     break;
 
   case Message::SeverityAlert:     // 1
-    ret="LOG_ALERT";
+    ret="ALERT";
     break;
 
   case Message::SeverityCrit:      // 2
-    ret="LOG_CRIT";
+    ret="CRIT";
     break;
 
   case Message::SeverityErr:       // 3
-    ret="LOG_ERR";
+    ret="ERR";
     break;
 
   case Message::SeverityWarning:   // 4
-    ret="LOG_WARNING";
+    ret="WARNING";
     break;
 
   case Message::SeverityNotice:    // 5
-    ret="LOG_NOTICE";
+    ret="NOTICE";
     break;
 
   case Message::SeverityInfo:      // 6
-    ret="LOG_INFO";
+    ret="INFO";
     break;
 
   case Message::SeverityDebug:     // 7
-    ret="LOG_DEBUG";
+    ret="DEBUG";
     break;
 
   case Message::SeverityLast:      // 8
