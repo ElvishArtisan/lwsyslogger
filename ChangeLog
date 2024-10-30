@@ -63,3 +63,6 @@
 	by prepending a '-' to its name/value in a 'Facility' configuration
 	parameter.
 	* Updated the sample configuration file.
+2024-10-30 Fred Gleason <fredg@paravelsystems.com>
+	* Documented all existing configuration parameters in the
+	lwsyslogger.conf(5) man page.
