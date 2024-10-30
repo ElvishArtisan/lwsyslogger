@@ -66,3 +66,5 @@
 2024-10-30 Fred Gleason <fredg@paravelsystems.com>
 	* Documented all existing configuration parameters in the
 	lwsyslogger.conf(5) man page.
+2024-10-30 Fred Gleason <fredg@paravelsystems.com>
+	* Added a 'FileByHostname' processor type.

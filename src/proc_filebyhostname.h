@@ -1,6 +1,6 @@
-// proc_factory.cpp
+// proc_filebyhostname.h
 //
-// Processor Factory
+// Processor for logging to files based on the hostname.
 //
 //   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 //
@@ -18,26 +18,30 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#include "proc_filebyhostname.h"
-#include "proc_simplefile.h"
+#ifndef PROC_FILEBYHOSTNAME_H
+#define PROC_FILEBYHOSTNAME_H
 
-Processor *ProcessorFactory(Processor::Type type,const QString &id,Profile *p,
-			    QObject *parent)
+#include <QMap>
+
+#include "processor.h"
+
+class ProcFileByHostname : public Processor
 {
-  Processor *proc=NULL;
-  
-  switch(type) {
-  case Processor::TypeSimpleFile:
-    proc=new ProcSimpleFile(id,p,parent);
-    break;
+  Q_OBJECT
+ public:
+  ProcFileByHostname(const QString &id,Profile *p,QObject *parent=0);
+  Processor::Type type() const;
+  bool start(QString *err_msg);
+  void rotateLogs(const QDateTime &now);
 
-  case Processor::TypeFileByHostname:
-    proc=new ProcFileByHostname(id,p,parent);
-    break;
+ protected:
+  void processMessage(Message *msg,const QHostAddress &from_addr);
 
-  case Processor::TypeLast:
-    break;
-  }
+ private:
+  QDir *d_base_dir;
+  QMap<QString,FILE *> d_files;
+  QString d_template;
+};
 
-  return proc;
-}
+
+#endif  // PROC_FILEBYHOSTNAME_H

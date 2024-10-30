@@ -35,7 +35,7 @@ class Processor : public QObject
 {
   Q_OBJECT
  public:
-  enum Type {TypeSimpleFile=0,TypeLast=1};
+  enum Type {TypeSimpleFile=0,TypeFileByHostname=1,TypeLast=2};
   Processor(const QString &id,Profile *c,QObject *parent=0);
   QString id() const;
   bool dryRun() const;

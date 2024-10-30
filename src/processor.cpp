@@ -148,8 +148,7 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
     d_log_rotation_time=tvalues.last();
   }
   if(!d_log_rotation_time.isValid()) {
-    fprintf(stderr,"invalid time value in LogRotationTime\n");
-    exit(1);
+    lsyslog(Message::SeverityDebug,"log rotation has been disabled");
   }
   d_log_rotation_timer=new QTimer(this);
   d_log_rotation_timer->setSingleShot(true);
@@ -200,6 +199,10 @@ QString Processor::typeString(Processor::Type type)
   switch(type) {
   case Processor::TypeSimpleFile:
     ret="SimpleFile";
+    break;
+
+  case Processor::TypeFileByHostname:
+    ret="FileByHostname";
     break;
 
   case Processor::TypeLast:

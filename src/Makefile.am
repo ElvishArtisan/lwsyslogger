@@ -35,6 +35,7 @@ dist_lwsyslogger_SOURCES = addressfilter.cpp addressfilter.h\
                            lwsyslogger.cpp lwsyslogger.h\
                            message.cpp message.h\
                            proc_factory.cpp proc_factory.h\
+                           proc_filebyhostname.cpp proc_filebyhostname.h\
                            proc_simplefile.cpp proc_simplefile.h\
                            processor.cpp processor.h\
                            profile.cpp profile.h\
@@ -43,6 +44,7 @@ dist_lwsyslogger_SOURCES = addressfilter.cpp addressfilter.h\
                            receiver.cpp receiver.h
 
 nodist_lwsyslogger_SOURCES = moc_lwsyslogger.cpp\
+                             moc_proc_filebyhostname.cpp\
                              moc_proc_simplefile.cpp\
                              moc_processor.cpp\
                              moc_recv_udp.cpp\

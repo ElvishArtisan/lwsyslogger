@@ -132,6 +132,26 @@
 	 </varlistentry>
 	 <varlistentry>
 	   <term>
+	     <userinput>BaseDirname = <replaceable>path-name</replaceable></userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       Uniquely identifies the pathname of the directory in which to
+	       create logfiles, relative to the value of the
+	       <computeroutput>LogRoot</computeroutput> parameter given in
+	       the <computeroutput>[Global]</computeroutput> section. It
+	       must be a relative path --i.e. it cannot begin with
+	       <userinput>/</userinput>.
+	     </para>
+	     <para>
+	       This parameter is used only by
+	       <userinput>FileByHostname</userinput> processors, and will be
+	       ignored by all other types.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
 	     <userinput>BaseFilename = <replaceable>path-name</replaceable></userinput>
 	   </term>
 	   <listitem>
@@ -142,6 +162,11 @@
 	       the <computeroutput>[Global]</computeroutput> section. It
 	       must be a relative path --i.e. it cannot begin with
 	       <userinput>/</userinput>.
+	     </para>
+	     <para>
+	       This parameter is used only by
+	       <userinput>SimpleFile</userinput> processors, and will be
+	       ignored by all other types.
 	     </para>
 	   </listitem>
 	 </varlistentry>
@@ -354,6 +379,18 @@
 	     </para>
 	     <para>
 	       <variablelist>
+		 <varlistentry>
+		   <term><userinput>FileByHostname</userinput></term>
+		   <listitem>
+		     <para>
+		       Log messages to multiple files, one per hostname. When
+		       naming destination files,
+		       <command>lwsyslogger</command><manvolnum>8</manvolnum>
+		       will automatically replace any hyphens ('-') in the
+		       hostname with underscores ('_').
+		     </para>
+		   </listitem>
+		 </varlistentry>
 		 <varlistentry>
 		   <term><userinput>SimpleFile</userinput></term>
 		   <listitem>
