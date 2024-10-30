@@ -55,6 +55,7 @@ class Message : public QObject
   Facility facility() const;
   Severity severity() const;
   QDateTime timestamp() const;
+  void setTimestamp(const QDateTime &dt);
   QString hostName() const;
   QString appName() const;
   QString procId() const;

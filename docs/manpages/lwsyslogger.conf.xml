@@ -192,19 +192,6 @@
 	 
 	 <varlistentry>
 	   <term>
-	     <userinput>OldLogPurgeAge = <replaceable>days</replaceable></userinput>
-	   </term>
-	   <listitem>
-	     <para>
-	       An integer, in days. Rotated log files that are older than this
-	       many days will be purged (deleted) at the next log rotation
-	       time. Default is <userinput>0</userinput>, which will cause
-	       all automatic log purging for this processor to be disabled.
-	     </para>
-	   </listitem>
-	 </varlistentry>
-	 <varlistentry>
-	   <term>
 	     <userinput>LogRotationAge = <replaceable>days</replaceable></userinput>
 	   </term>
 	   <listitem>
@@ -241,6 +228,31 @@
 	       is to be attempted each day, in the format
 	       <userinput>HH:MM</userinput>. Default is a null time value,
 	       which will disable all log rotation for this processor.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
+	     <userinput>OldLogPurgeAge = <replaceable>days</replaceable></userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       An integer, in days. Rotated log files that are older than this
+	       many days will be purged (deleted) at the next log rotation
+	       time. Default is <userinput>0</userinput>, which will cause
+	       all automatic log purging for this processor to be disabled.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
+	     <userinput>OverrideTimestamps = yes</userinput> | <userinput>no</userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       Replace the host-provided message timestamp with one derived
+	       from the processing host. Useful for malconfigured hosts that
+	       do not keep accurate time.
 	     </para>
 	   </listitem>
 	 </varlistentry>

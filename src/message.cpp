@@ -127,6 +127,12 @@ QDateTime Message::timestamp() const
 }
 
 
+void Message::setTimestamp(const QDateTime &dt)
+{
+  d_timestamp=dt;
+}
+
+
 QString Message::hostName() const
 {
   return d_host_name;

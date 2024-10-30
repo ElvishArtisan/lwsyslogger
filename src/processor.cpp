@@ -47,6 +47,15 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
   d_log_root_directory=new QDir(values.last());
 
   //
+  // Override Timestamps
+  //
+  d_override_timestamps=false;
+  QList<bool> bools=d_profile->boolValues("Processor",id,"OverrideTimestamps");
+  if(!bools.isEmpty()) {
+    d_override_timestamps=bools.last();
+  }
+  
+  //
   // Facility Values
   //
   QStringList strings=d_profile->stringValues("Processor",id,"Facility");
@@ -163,6 +172,12 @@ QString Processor::id() const
 }
 
 
+bool Processor::overrideTimestamps()
+{
+  return d_override_timestamps;
+}
+
+
 bool Processor::dryRun() const
 {
   return d_dry_run;
@@ -230,6 +245,9 @@ void Processor::process(Message *msg,const QHostAddress &from_addr)
   if(((MakeMask(((uint32_t)msg->facility()))&d_facility_mask)!=0)&&
      ((MakeMask(((uint32_t)msg->severity()))&d_severity_mask)!=0)&&
      d_address_filter->contains(from_addr)) {
+    if(d_override_timestamps) {
+      msg->setTimestamp(QDateTime::currentDateTime());
+    }
     processMessage(msg,from_addr);
   }
 }

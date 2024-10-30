@@ -38,6 +38,7 @@ class Processor : public QObject
   enum Type {TypeSimpleFile=0,TypeFileByHostname=1,TypeLast=2};
   Processor(const QString &id,Profile *c,QObject *parent=0);
   QString id() const;
+  bool overrideTimestamps();
   bool dryRun() const;
   void setDryRun(bool state);
   virtual Type type() const=0;
@@ -78,6 +79,7 @@ class Processor : public QObject
   int d_log_rotation_size;
   QString d_id;
   bool d_dry_run;
+  bool d_override_timestamps;
   QDir *d_log_root_directory;
 };
 
