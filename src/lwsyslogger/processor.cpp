@@ -38,7 +38,7 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
   d_profile=p;
   d_dry_run=false;
   d_address_filter=new AddressFilter();
-  d_deduplication_threshold=0;
+  d_deduplication_timeout=0;
   d_last_message_count=0;
   
   values=p->stringValues("Global","Default","LogRoot");
@@ -138,12 +138,18 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
   //
   // Deduplication Values
   //
-  d_deduplication_threshold=0;  // Default value
-  QList<int> ivalues=p->intValues("Processor",id,"DeduplicationThreshold");
+  d_deduplication_timeout=0;  // Default value
+  QList<int> ivalues=p->intValues("Processor",id,"DeduplicationTimeout");
   if(!ivalues.isEmpty()) {
-    d_deduplication_threshold=ivalues.last();
+    d_deduplication_timeout=ivalues.last();
   }
-
+  d_deduplication_timer=new QTimer(this);
+  d_deduplication_timer->setSingleShot(true);
+  connect(d_deduplication_timer,SIGNAL(timeout()),
+	  this,SLOT(deduplicationTimeoutData()));
+  lsyslog(Message::SeverityDebug,"DeduplicationTimeout set to %d seconds",
+	  d_deduplication_timeout);
+  
   //
   // Log Rotation Values
   //
@@ -259,21 +265,22 @@ void Processor::process(Message *msg,const QHostAddress &from_addr)
     if(d_override_timestamps) {
       msg->setTimestamp(QDateTime::currentDateTime());
     }
-    if(msg->isDuplicateOf(d_last_message)) {
-      d_last_message_count++;
-      if(d_last_message_count>=d_deduplication_threshold) {
+
+    //
+    // Deduplication Stuff
+    //
+    if(d_deduplication_timeout>0) {
+      d_deduplication_timer->stop();
+      d_deduplication_timer->start(1000*d_deduplication_timeout);
+      if(msg->isDuplicateOf(d_last_message)) {
+	d_last_message_count++;
 	return;
       }
-    }
-    else {
-      if(d_last_message_count>1) {
-	Message dup_msg(d_last_message.severity(),
-			QString::asprintf("previous message repeated %d times",
-					  d_last_message_count-1));
-	processMessage(&dup_msg,QHostAddress::LocalHost);
+      else {
+	deduplicationTimeoutData();
+	d_last_message=*msg;
+	d_last_message_count=0;
       }
-      d_last_message=*msg;
-      d_last_message_count=1;
     }
 	
     processMessage(msg,from_addr);
@@ -385,6 +392,19 @@ void Processor::logRotationData()
 {
   rotateLogs(QDateTime::currentDateTime());
   StartLogRotationTimer();
+}
+
+
+void Processor::deduplicationTimeoutData()
+{
+  if(d_last_message_count>0) {
+    Message dup_msg(d_last_message.severity(),
+		    QString::asprintf("message repeated %d times",
+				      d_last_message_count));
+    processMessage(&dup_msg,QHostAddress::LocalHost);
+  }
+  d_last_message.clear();
+  d_last_message_count=0;
 }
 
 

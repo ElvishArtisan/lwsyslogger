@@ -60,6 +60,7 @@ class Processor : public QObject
 
  private slots:
   void logRotationData();
+  void deduplicationTimeoutData();
   
  private:
   void StartLogRotationTimer();
@@ -79,7 +80,8 @@ class Processor : public QObject
   int d_log_rotation_size;
   QString d_id;
   bool d_dry_run;
-  int d_deduplication_threshold;
+  int d_deduplication_timeout;
+  QTimer *d_deduplication_timer;
   Message d_last_message;
   int d_last_message_count;
   bool d_override_timestamps;

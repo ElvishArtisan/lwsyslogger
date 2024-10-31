@@ -72,3 +72,5 @@
 	* Added an 'OverrideTimestamps' parameter for processors.
 2024-10-31 Fred Gleason <fredg@paravelsystems.com>
 	* Added a 'send_syslog' test applet.
+2024-10-31 Fred Gleason <fredg@paravelsystems.com>
+	* Added a 'DeduplicationTimeout' parameter for processors.

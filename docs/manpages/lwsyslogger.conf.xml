@@ -152,21 +152,15 @@
 	 </varlistentry>
 	 <varlistentry>
 	   <term>
-	     <userinput>BaseFilename = <replaceable>path-name</replaceable></userinput>
+	     <userinput>DeduplicationTimeout = <replaceable>timeout</replaceable></userinput>
 	   </term>
 	   <listitem>
 	     <para>
-	       Uniquely identifies the pathname of the file in which to log
-	       messages, relative to the value of the
-	       <computeroutput>LogRoot</computeroutput> parameter given in
-	       the <computeroutput>[Global]</computeroutput> section. It
-	       must be a relative path --i.e. it cannot begin with
-	       <userinput>/</userinput>.
-	     </para>
-	     <para>
-	       This parameter is used only by
-	       <userinput>SimpleFile</userinput> processors, and will be
-	       ignored by all other types.
+	       When de-duplicating messages, wait this many seconds after
+	       receipt of a duplicate message before logging a 'message
+	       repeated &lt;n&gt; times' notification. Setting
+	       <userinput>0</userinput> here will disable duplication
+	       detection entirely.
 	     </para>
 	   </listitem>
 	 </varlistentry>
