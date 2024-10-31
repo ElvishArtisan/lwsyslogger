@@ -12,14 +12,29 @@ binary:
 	dh_auto_install
 	dh_installchangelogs ChangeLog
 
-#	mkdir -p debian/glassplayer/usr/bin
-#	mv debian/tmp/usr/bin/glassplayer debian/glassplayer/usr/bin
-#	mkdir -p debian/glassplayer/usr/share/man/man1
-#	mv debian/tmp/usr/share/man/man1/glassplayer.1 debian/glassplayer/usr/share/man/man1/
-#	mkdir -p debian/glassplayer/usr/share/doc/glassplayer
-#	cp AUTHORS debian/glassplayer/usr/share/doc/glassplayer/
-#	cp NEWS debian/glassplayer/usr/share/doc/glassplayer/
-#	cp README debian/glassplayer/usr/share/doc/glassplayer/
+	mkdir -p debian/lwsyslogger-utils/usr/bin
+	mv debian/tmp/usr/bin/send_syslog debian/lwsyslogger-utils/usr/bin
+	mkdir -p debian/lwsyslogger-utils/usr/share/applications
+	mv debian/tmp/usr/share/applications/lwsyslogger-send_syslog.desktop debian/lwsyslogger-utils/usr/share/applications
+	mkdir -p debian/lwsyslogger-utils/usr/share/icons/hicolor/16x16/apps
+	mv debian/tmp/usr/share/icons/hicolor/16x16/apps/send_syslog.png debian/lwsyslogger-utils/usr/share/icons/hicolor/16x16/apps
+	mkdir -p debian/lwsyslogger-utils/usr/share/icons/hicolor/48x48/apps
+	mv debian/tmp/usr/share/icons/hicolor/48x48/apps/send_syslog.png debian/lwsyslogger-utils/usr/share/icons/hicolor/48x48/apps
+
+	mkdir -p debian/lwsyslogger/usr/sbin
+	mv debian/tmp/usr/sbin/lwsyslogger debian/lwsyslogger/usr/sbin
+	mkdir -p debian/lwsyslogger/usr/share/lwsyslogger
+	mv debian/tmp/usr/share/lwsyslogger/lwsyslogger-sample.conf debian/lwsyslogger/usr/share/lwsyslogger
+	mkdir -p debian/lwsyslogger/usr/share/man/man5
+	mv debian/tmp/usr/share/man/man5/lwsyslogger.conf.5 debian/lwsyslogger/usr/share/man/man5/
+	mkdir -p debian/lwsyslogger/usr/share/man/man8
+	mv debian/tmp/usr/share/man/man8/lwsyslogger.8 debian/lwsyslogger/usr/share/man/man8/
+	mkdir -p debian/lwsyslogger/lib/systemd/system
+	mv debian/tmp/lib/systemd/system/lwsyslogger.service debian/lwsyslogger/lib/systemd/system
+	mkdir -p debian/lwsyslogger/usr/share/doc/lwsyslogger
+	cp AUTHORS debian/lwsyslogger/usr/share/doc/lwsyslogger/
+	cp NEWS debian/lwsyslogger/usr/share/doc/lwsyslogger/
+	cp README debian/lwsyslogger/usr/share/doc/lwsyslogger/
 
 	dh_strip_nondeterminism
 	dh_compress

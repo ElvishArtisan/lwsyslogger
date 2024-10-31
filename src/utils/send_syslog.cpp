@@ -29,12 +29,17 @@
 #include "cmdswitch.h"
 #include "send_syslog.h"
 
+#include "../../icons/send_syslog-16x16.xpm"
+
 const char *global_ident={"send_syslog"};
 
 MainWidget::MainWidget(QWidget *parent)
   : QWidget(parent)
 {
   new CmdSwitch("send_syslog",VERSION,SEND_SYSLOG_USAGE);
+
+  setWindowTitle(QString("LWSysLogger - SendSyslog [")+VERSION+"]");
+  setWindowIcon(QPixmap(send_syslog_16x16_xpm));
 
   d_udp_socket=new QUdpSocket(this);
   

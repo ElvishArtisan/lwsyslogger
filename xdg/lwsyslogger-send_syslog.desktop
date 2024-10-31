@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Terminal=false
+Categories=Development;
+Name=Syslog Message Applet
+Exec=send_syslog
+Icon=send_syslog
+Type=Application

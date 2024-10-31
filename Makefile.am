@@ -23,8 +23,10 @@ SUBDIRS = conf\
           debian\
           docs\
           helpers\
+          icons\
           src\
-          systemd
+          systemd\
+          xdg
 
 ACLOCAL_AMFLAGS = -I m4
 

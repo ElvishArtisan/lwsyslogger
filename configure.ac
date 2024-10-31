@@ -177,6 +177,7 @@ AC_CONFIG_FILES([lwsyslogger.spec \
     debian/source/Makefile \
     Makefile \
     helpers/Makefile \
+    icons/Makefile \
     src/lwsyslogger/Makefile \
     src/utils/Makefile \
     src/Makefile \
@@ -184,6 +185,7 @@ AC_CONFIG_FILES([lwsyslogger.spec \
     docs/Makefile \
     systemd/Makefile \
     systemd/lwsyslogger.service \
+    xdg/Makefile \
     build_debs.sh \
     ])
 AC_OUTPUT()

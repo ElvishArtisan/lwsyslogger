@@ -11,3 +11,12 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Simple syslog server for Livewire environments
  Lwsyslogger is a simple syslog server system. It is intended for use in
  Livewire AoIP environments.
+
+Package: lwsyslogger-utils
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tools for working with syslogger systems
+ This package contains send_syslog(1), a simple GUI applet that allows
+ administrators to send test messages to the syslog system.
+
+
