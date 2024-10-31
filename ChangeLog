@@ -70,5 +70,5 @@
 	* Added a 'FileByHostname' processor type.
 2024-10-30 Fred Gleason <fredg@paravelsystems.com>
 	* Added an 'OverrideTimestamps' parameter for processors.
-2024-10-30 Fred Gleason <fredg@paravelsystems.com>
+2024-10-31 Fred Gleason <fredg@paravelsystems.com>
 	* Added a 'send_syslog' test applet.
