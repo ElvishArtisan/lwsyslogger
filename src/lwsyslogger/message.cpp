@@ -22,6 +22,7 @@
 
 #include <unistd.h>
 
+#include <QObject>
 #include <QStringList>
 
 #include "local_syslog.h"
@@ -214,6 +215,18 @@ void Message::clear()
   d_proc_id=QString();
   d_msg_id=QString();
   d_msg=QString();
+}
+
+
+bool Message::isDuplicateOf(const Message &msg) const
+{
+  return (msg.d_msg==d_msg)&&
+    (msg.d_facility==d_facility)&&
+    (msg.d_severity==d_severity)&&
+    (msg.d_host_name==d_host_name)&&
+    (msg.d_app_name==d_app_name)&&
+    (msg.d_proc_id==d_proc_id)&&
+    (msg.d_msg_id==d_msg_id);
 }
 
 

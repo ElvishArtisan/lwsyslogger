@@ -27,13 +27,12 @@
 
 #include <QByteArray>
 #include <QDateTime>
-#include <QObject>
 #include <QString>
 
 #define SYSLOG_VERSION 1
 #define UTF8_BOM (QByteArray(1,0xEF)+QByteArray(1,0xBB)+QByteArray(1,0xBF))
 
-class Message : public QObject
+class Message
 {
  public:
   enum Facility {FacilityKern=0,FacilityUser=1,FacilityMail=2,FacilityDaemon=3,
@@ -63,6 +62,7 @@ class Message : public QObject
   QString msg() const;
   QByteArray toByteArray();
   QString resolveWildcards(const QString &fmt);
+  bool isDuplicateOf(const Message &msg) const;
   void clear();
   QString dump() const;
   static QString facilityString(Facility facility);

@@ -36,6 +36,7 @@ AC_LANG(C++)
 # Check for Qt5 (Mandatory)
 #
 PKG_CHECK_MODULES(QT5_CLI,Qt5Core Qt5Network,,[AC_MSG_ERROR([*** Qt5 not found ***])])
+PKG_CHECK_MODULES(QT5_GUI,Qt5Core Qt5Gui Qt5Widgets Qt5Network,,[AC_MSG_ERROR([*** Qt5 not found ***])])
 AC_CHECK_PROG(MOC_NAME,moc-qt5,[moc-qt5],[moc])
 AC_SUBST(QT_MOC,$MOC_NAME)
 
@@ -176,6 +177,8 @@ AC_CONFIG_FILES([lwsyslogger.spec \
     debian/source/Makefile \
     Makefile \
     helpers/Makefile \
+    src/lwsyslogger/Makefile \
+    src/tests/Makefile \
     src/Makefile \
     docs/manpages/Makefile \
     docs/Makefile \

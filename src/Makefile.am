@@ -1,8 +1,8 @@
 ## Makefile.am
 ##
-## lwsyslogger(8) Makefile.am
+## Makefile.am for src/
 ##
-## (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
+##   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as
@@ -17,47 +17,44 @@
 ##   License along with this program; if not, write to the Free Software
 ##   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ##
-##
 ## Use automake to process this into a Makefile.in
 
-AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC -I$(top_srcdir)/lib @QT5_CLI_CFLAGS@
-MOC = @QT_MOC@
-
-# The dependency for qt's Meta Object Compiler (moc)
-moc_%.cpp:	%.h
-	$(MOC) $< -o $@
-
-sbin_PROGRAMS = lwsyslogger
-
-dist_lwsyslogger_SOURCES = addressfilter.cpp addressfilter.h\
-                           cmdswitch.cpp cmdswitch.h\
-                           local_syslog.h\
-                           lwsyslogger.cpp lwsyslogger.h\
-                           message.cpp message.h\
-                           proc_factory.cpp proc_factory.h\
-                           proc_filebyhostname.cpp proc_filebyhostname.h\
-                           proc_simplefile.cpp proc_simplefile.h\
-                           processor.cpp processor.h\
-                           profile.cpp profile.h\
-                           recv_factory.cpp recv_factory.h\
-                           recv_udp.cpp recv_udp.h\
-                           receiver.cpp receiver.h
-
-nodist_lwsyslogger_SOURCES = moc_lwsyslogger.cpp\
-                             moc_proc_filebyhostname.cpp\
-                             moc_proc_simplefile.cpp\
-                             moc_processor.cpp\
-                             moc_recv_udp.cpp\
-                             moc_receiver.cpp
-
-lwsyslogger_LDADD = @QT5_CLI_LIBS@
+SUBDIRS = lwsyslogger\
+          tests
 
 CLEANFILES = *~\
-             *.idb\
-             *ilk\
-             *.obj\
-             *.pdb\
-             moc_*
+             *.buildinfo\
+             *.changes\
+             *.ddeb\
+             *.deb\
+             *.dsc\
+             *.mo\
+             *.rpm\
+             *.tar.gz\
+             *.tar.xz\
+             *.tgz\
+             *.zip\
+             py-compile
+
+DISTCLEANFILES = *.spec\
+                 config.guess\
+                 config.sub\
+                 ltmain.sh\
+                 lwsyslogger
 
 MAINTAINERCLEANFILES = *~\
-                       Makefile.in
+                       *.tar.gz\
+                       aclocal.m4\
+                       Makefile.in\
+                       compile\
+                       config.guess\
+                       config.status\
+                       config.sub\
+                       configure\
+                       depcomp\
+                       install-sh\
+                       libtool\
+                       ltmain.sh\
+                       missing\
+                       mkinstalldirs\
+                       lwsyslogger.spec

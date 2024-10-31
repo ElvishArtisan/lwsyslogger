@@ -79,6 +79,9 @@ class Processor : public QObject
   int d_log_rotation_size;
   QString d_id;
   bool d_dry_run;
+  int d_deduplication_threshold;
+  Message d_last_message;
+  int d_last_message_count;
   bool d_override_timestamps;
   QDir *d_log_root_directory;
 };

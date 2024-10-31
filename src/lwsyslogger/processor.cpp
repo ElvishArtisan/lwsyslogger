@@ -38,6 +38,8 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
   d_profile=p;
   d_dry_run=false;
   d_address_filter=new AddressFilter();
+  d_deduplication_threshold=0;
+  d_last_message_count=0;
   
   values=p->stringValues("Global","Default","LogRoot");
   if(values.isEmpty()) {
@@ -134,10 +136,19 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
 	  d_address_filter->subnets().toUtf8().constData());
 
   //
+  // Deduplication Values
+  //
+  d_deduplication_threshold=0;  // Default value
+  QList<int> ivalues=p->intValues("Processor",id,"DeduplicationThreshold");
+  if(!ivalues.isEmpty()) {
+    d_deduplication_threshold=ivalues.last();
+  }
+
+  //
   // Log Rotation Values
   //
   d_log_rotation_age=0;  // Default value
-  QList<int> ivalues=p->intValues("Processor",id,"LogRotationAge");
+  ivalues=p->intValues("Processor",id,"LogRotationAge");
   if(!ivalues.isEmpty()) {
     d_log_rotation_age=ivalues.last();
   }
@@ -248,6 +259,23 @@ void Processor::process(Message *msg,const QHostAddress &from_addr)
     if(d_override_timestamps) {
       msg->setTimestamp(QDateTime::currentDateTime());
     }
+    if(msg->isDuplicateOf(d_last_message)) {
+      d_last_message_count++;
+      if(d_last_message_count>=d_deduplication_threshold) {
+	return;
+      }
+    }
+    else {
+      if(d_last_message_count>1) {
+	Message dup_msg(d_last_message.severity(),
+			QString::asprintf("previous message repeated %d times",
+					  d_last_message_count-1));
+	processMessage(&dup_msg,QHostAddress::LocalHost);
+      }
+      d_last_message=*msg;
+      d_last_message_count=1;
+    }
+	
     processMessage(msg,from_addr);
   }
 }
