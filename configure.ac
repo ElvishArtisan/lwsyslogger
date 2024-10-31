@@ -178,7 +178,7 @@ AC_CONFIG_FILES([lwsyslogger.spec \
     Makefile \
     helpers/Makefile \
     src/lwsyslogger/Makefile \
-    src/tests/Makefile \
+    src/utils/Makefile \
     src/Makefile \
     docs/manpages/Makefile \
     docs/Makefile \

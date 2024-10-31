@@ -27,7 +27,7 @@ MOC = @QT_MOC@
 moc_%.cpp:	%.h
 	$(MOC) $< -o $@
 
-noinst_PROGRAMS = send_syslog
+bin_PROGRAMS = send_syslog
 
 dist_send_syslog_SOURCES = cmdswitch.cpp cmdswitch.h\
                            send_syslog.cpp send_syslog.h

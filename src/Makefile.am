@@ -20,7 +20,7 @@
 ## Use automake to process this into a Makefile.in
 
 SUBDIRS = lwsyslogger\
-          tests
+          utils
 
 CLEANFILES = *~\
              *.buildinfo\
