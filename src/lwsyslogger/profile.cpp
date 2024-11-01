@@ -18,7 +18,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, 
 //    Boston, MA  02111-1307  USA
 //
-// EXEMPLAR_VERSION: 1.1.0
+// EXEMPLAR_VERSION: 1.2.0
 //
 
 #include <stdio.h>
@@ -109,7 +109,7 @@ bool Profile::loadFile(const QString &filename,QString *err_msg)
 
 
 int Profile::loadDirectory(const QString &dirpath,const QString &glob_template,
-			    QStringList *err_msgs)
+			   QStringList *err_msgs)
 {
   QString err_msg;
   QDir dir(dirpath);
@@ -118,13 +118,13 @@ int Profile::loadDirectory(const QString &dirpath,const QString &glob_template,
   if(!dir.exists()) {
     if(err_msgs!=NULL) {
       err_msgs->push_back(QObject::tr("no such directory"));
-      return false;
+      return -1;
     }
   }
   if(!dir.isReadable()) {
     if(err_msgs!=NULL) {
       err_msgs->push_back(QObject::tr("directory is not readable"));
-      return false;
+      return -1;
     }
   }
   QStringList name_filters;
@@ -145,6 +145,17 @@ int Profile::loadDirectory(const QString &dirpath,const QString &glob_template,
   }
 
   return ret;
+}
+
+
+int Profile::loadDirectory(const QString &glob_path,QStringList *err_msgs)
+{
+  QStringList f0=glob_path.split("/",Qt::SkipEmptyParts);
+  QString glob_template=f0.last();
+  f0.removeLast();
+  QString dir_path=f0.join("/");
+  
+  return loadDirectory(dir_path,glob_template,err_msgs);
 }
 
 

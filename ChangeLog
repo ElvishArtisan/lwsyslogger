@@ -89,3 +89,6 @@
 	* Fixed a bug in 'debian/rules' that broke the 'make deb' target.
 2024-11-01 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 0.5.0.
+2024-11-01 Fred Gleason <fredg@paravelsystems.com>
+	* Updated the 'CmdSwitch' class to use Exemplar v1.2.0.
+	* Updated the 'Profile' class to use Exemplar v1.2.0.
