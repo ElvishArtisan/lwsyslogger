@@ -72,6 +72,9 @@ fi
 if test ! -e /etc/lwsyslogger.conf ; then
     cp /usr/share/lwsyslogger/lwsyslogger-sample.conf /etc/lwsyslogger.conf
 fi
+if test ! -d /etc/lwsyslogger.d ; then
+    mkdir -p /etc/lwsyslogger.d
+fi
 /bin/systemctl restart lwsyslogger
 /bin/systemctl enable lwsyslogger
 

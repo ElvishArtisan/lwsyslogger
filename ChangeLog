@@ -94,3 +94,6 @@
 	* Updated the 'Profile' class to use Exemplar v1.2.0.
 2024-11-01 Fred Gleason <fredg@paravelsystems.com>
 	* Updated the 'Profile' class to use Exemplar v1.2.0.
+2024-11-01 Fred Gleason <fredg@paravelsystems.com>
+	* Added an 'IncludeConfig' parameter to the '[Global'] section
+	of lwsyslogger.conf(5).

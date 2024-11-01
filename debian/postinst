@@ -11,6 +11,9 @@ case "$1" in
 	  chown lwsyslogger:lwsyslogger /var/log/lwsyslogger
 	  chmod 770 /var/log/lwsyslogger
       fi
+      if test ! -d /etc/lwsyslogger.d ; then
+	 mkdir -p /etc/lwsyslogger.d
+      fi
       if test ! -e /etc/lwsyslogger.conf ; then
 	  cp /usr/share/lwsyslogger/lwsyslogger-sample.conf /etc/lwsyslogger.conf
       fi

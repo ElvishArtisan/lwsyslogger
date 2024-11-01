@@ -104,6 +104,7 @@ MainObject::MainObject(QObject *parent)
   bool rotate_logfiles=false;
   bool dry_run=false;
   QString err_msg;
+  QStringList err_msgs;
   
   //
   // Read Switches
@@ -155,7 +156,26 @@ MainObject::MainObject(QObject *parent)
 	    config_filename.toUtf8().constData());
     exit(1);
   }
-
+  QStringList config_dirs=
+    d_profile->stringValues("Global","Default","IncludeConfig");
+  printf("SIZE: %d\n",config_dirs.size());
+  for(int i=0;i<config_dirs.size();i++) {
+    printf("trying[%d]: %s\n",i,config_dirs.at(i).toUtf8().constData());
+    int num=d_profile->loadDirectory(config_dirs.at(i),&err_msgs);
+    if(num<0) {
+      fprintf(stderr,
+	 "lwsyslogger: failed attempting to read configuration from \"%s\":\n",
+	      config_dirs.at(i).toUtf8().constData());
+      for(int j=0;j<err_msgs.size();j++) {
+	fprintf(stderr,"    error[%d]: %s\n",1+j,
+		err_msgs.at(i).toUtf8().constData());
+      }
+      exit(1);
+    }
+    LocalSyslog(Message::SeverityDebug,"loaded %d configurations from \"%s\"",
+		num,config_dirs.at(i).toUtf8().constData());
+  }
+  
   //
   // Verify that the LogRoot is configured correctly
   //
