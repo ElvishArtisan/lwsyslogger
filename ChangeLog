@@ -85,3 +85,5 @@
 	'BaseFilename=syslog' in the sample configuration file.
 	* Changed 'DeduplicationTimeout=0' to
 	'DeduplicationTimeout=5' in the sample configuration file.
+2024-11-01 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a bug in 'debian/rules' that broke the 'make deb' target.

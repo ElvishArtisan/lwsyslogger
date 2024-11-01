@@ -29,8 +29,8 @@ binary:
 	mv debian/tmp/usr/share/man/man5/lwsyslogger.conf.5 debian/lwsyslogger/usr/share/man/man5/
 	mkdir -p debian/lwsyslogger/usr/share/man/man8
 	mv debian/tmp/usr/share/man/man8/lwsyslogger.8 debian/lwsyslogger/usr/share/man/man8/
-	mkdir -p debian/lwsyslogger/lib/systemd/system
-	mv debian/tmp/lib/systemd/system/lwsyslogger.service debian/lwsyslogger/lib/systemd/system
+	mkdir -p debian/lwsyslogger/usr/lib/systemd/system
+	mv debian/tmp/usr/lib/systemd/system/lwsyslogger.service debian/lwsyslogger/usr/lib/systemd/system
 	mkdir -p debian/lwsyslogger/usr/share/doc/lwsyslogger
 	cp AUTHORS debian/lwsyslogger/usr/share/doc/lwsyslogger/
 	cp NEWS debian/lwsyslogger/usr/share/doc/lwsyslogger/
