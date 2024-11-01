@@ -1,4 +1,14 @@
 This is the README file for lwsyslogger.
 
-Lwsyslogger is a simple Syslogger system that is optimized for use with
-Livewire infrastructure.
+Lwsyslogger is a simple syslog server system that is optimized for use with
+Livewire infrastructure. It aims towards RFC-5424 compliance.
+
+It consists of two components:
+
+lwsyslogger(8) - The logger service. At present, only UDP message reception
+                 (RFC-5426 compliant) is supported, using "traditional"
+		 BSD-style messaging. See the lwsyslogger(8) and
+		 lwsyslogger.conf(5) man pages for details.
+
+send_syslog(1) - A simple GUI applet for originating test syslog messages.
+                 Useful for debugging, but not much else.
