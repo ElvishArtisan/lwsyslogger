@@ -80,3 +80,8 @@
 	* Added desktop integration for send_syslog(1).
 2024-11-01 Fred Gleason <fredg@paravelsystems.com>
 	* Got the 'make rpm' target working.
+2024-11-01 Fred Gleason <fredg@paravelsystems.com>
+	* Changed 'BaseFilename=mydir/syslog' to
+	'BaseFilename=syslog' in the sample configuration file.
+	* Changed 'DeduplicationTimeout=0' to
+	'DeduplicationTimeout=5' in the sample configuration file.
