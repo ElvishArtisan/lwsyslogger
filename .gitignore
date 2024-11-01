@@ -33,4 +33,4 @@ missing
 moc_*
 helpers/docbook
 src/lwsyslogger/lwsyslogger
-src/tests/send_syslog
+src/utils/send_syslog
