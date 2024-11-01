@@ -41,7 +41,6 @@ rpm:	dist
 	cp lwsyslogger-$(VERSION).tar.gz $(HOME)/rpmbuild/SOURCES/
 	$(RPMBUILD) -ba --target $(ARCH)-$(VENDOR)-linux lwsyslogger.spec
 	mv $(HOME)/rpmbuild/RPMS/$(ARCH)/lwsyslogger-*.rpm $(top_srcdir)/
-	mv $(HOME)/rpmbuild/RPMS/noarch/lwsyslogger-*.rpm $(top_srcdir)/
 	mv $(HOME)/rpmbuild/SRPMS/lwsyslogger-*.src.rpm $(top_srcdir)/
 	rm $(HOME)/rpmbuild/SOURCES/lwsyslogger-$(VERSION).tar.gz
 

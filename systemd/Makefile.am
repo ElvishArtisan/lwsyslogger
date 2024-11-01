@@ -2,7 +2,7 @@
 ##
 ## Use automake to process this into a Makefile.in
 ##
-##   (C) Copyright 2018 Fred Gleason <fredg@paravelsystems.com>
+##   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as
@@ -19,12 +19,12 @@
 ##
 
 install-exec-local:	
-	mkdir -p $(DESTDIR)/lib/systemd/system
-	cp lwsyslogger.service $(DESTDIR)/lib/systemd/system/lwsyslogger.service
+	mkdir -p $(DESTDIR)$(prefix)/lib/systemd/system
+	cp lwsyslogger.service $(DESTDIR)$(prefix)/lib/systemd/system/lwsyslogger.service
 	./daemon-reload.sh
 
 uninstall-local:	
-	rm -f $(DESTDIR)/lib/systemd/system/lwsyslogger.service
+	rm -f $(DESTDIR)$(prefix)/lib/systemd/system/lwsyslogger.service
 	./daemon-reload.sh
 
 EXTRA_DIST = daemon-reload.sh\

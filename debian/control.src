@@ -15,8 +15,8 @@ Description: Simple syslog server for Livewire environments
 Package: lwsyslogger-utils
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Tools for working with syslogger systems
+Description: Tools for working with syslog systems
  This package contains send_syslog(1), a simple GUI applet that allows
- administrators to send test messages to the syslog system.
+ administrators to send test messages to a syslog system.
 
 

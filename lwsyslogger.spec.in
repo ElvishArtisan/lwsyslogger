@@ -1,9 +1,9 @@
-## rivendell.spec.in
+## lwsyslogger.spec.in
 
 @GENERATED_SCRIPT_FILE_WARNING@
 
-##    The Rivendell Radio Automation System
-##    Copyright (C) 2002-2023  Fred Gleason <fredg@paravelsystems.com>
+##    Simple syslog server for Livewire environments
+##    Copyright (C) 2024  Fred Gleason <fredg@paravelsystems.com>
 ##
 ##    This program is free software; you can redistribute it and/or modify
 ##    it under the terms of version 2 of the GNU General Public License as
@@ -20,89 +20,28 @@
 ##    Boston, MA  02111-1307  USA
 ##
 
-# So python bytecompilation works correctly
-%define __python /usr/bin/python3
-
-Summary: Radio Broadcast Automation System
-Name: rivendell
+Summary: Simple syslog server for Livewire environments
+Name: lwsyslogger
 Version: @VERSION@
 Release: @RPM_RELEASE@
 License: GPL
 Packager: Fred Gleason <fredg@paravelsystems.com>
-Source: rivendell-@VERSION@.tar.gz
-Requires: @MYSQL_PKG@ @QT_MYSQL_PKG@ @APACHE_PKG@ curl @USERMODE_PKG@ rsyslog qt5-qtstyleplugins qt5-qttranslations @PYPAD_DEPS@ libxslt icedax
+Source: lwsyslogger-@VERSION@.tar.gz
 BuildRequires: qt5-qtbase-devel qt5-linguist
-BuildRoot: /var/tmp/rivendell-@VERSION@
-Obsoletes: rivendell-base < 4.0.0 rivendell-opsguide < 4.0.0 rivendell-pypad < 4.0.0
-Conflicts: rivendell-opsguide
+BuildRoot: /var/tmp/lwsyslogger-@VERSION@
 
-%package importers
-Summary: Library importers for the Rivendell Broadcast Automation System
-Requires: rivendell = @VERSION@ madplay
-
-%package opsguide
-Summary: Rivendell Operations and Administration Guide
-BuildArch: noarch
-Conflicts: rivendell
-
-%package webapi
-Summary: Client libraries for interfacing with Rivendell's Web API.
-
-%package devel
-Summary: Header files and example code for development with Rivendell APIs
-Requires: rivendell = @VERSION@ rivendell-webapi = @VERSION@
-
-%package select
-Summary: The RDSelect system selector tool for Rivendell.
-Requires: rivendell = @VERSION@ autofs
-
-%package webget
-Summary: The WebGet audio fetcher service for Rivendell
-Requires: rivendell = @VERSION@
+%package utils
+Summary:  Tools for working with syslog systems
 
 
 %description
-Rivendell is a complete radio broadcast automation solution, with
-facilities for the acquisition, management, scheduling and playout of
-audio content.  Modules for the production and management of podcast
-audio are also included.
+ Lwsyslogger is a simple syslog server system. It is intended for use in
+ Livewire AoIP environments.
 
 
-%description importers
-This package contains various importer scripts, which can be used to
-import audio from existing legacy automation systems into Rivendell.
-Currently, scripts exist for the AirForce Wings, Prophet NexGen and Sierra
-Automated Systems SASAuto systems, as well as from another Rivendell system
-(useful for 'merging' multiple databases).  Additionally, scripts for
-initializing switcher matrices for the Christian Radio Consortium
-(CRC) Unity4000 network and copying RDCatch event lists between hosts
-are included.
-
-
-%description opsguide
-This package contains the Rivendell Operations and Administration Guide,
-in both HTML and PDF formats.
-
-
-%description webapi
-This package contains client libraries for interfacing with Rivendell's
-Web API subsystem.
-
-
-%description devel
-This package contains header files and example code for development using
-Rivendell's Web C API, which can be used to integrate with Rivendell Web
-API Interface.
-
-
-%description select
-This package contains the RDMonitor/RDSelect tool for Rivendell, which can
-be used to select which amoung multiple Rivendell instances a host should be
-associated with.
-
-
-%description webget
-This package contains the WebGet audio fetching tool for Rivendell.
+%description utils
+ This package contains send_syslog(1), a simple GUI applet that allows
+ administrators to send test messages to a syslog system.
 
 
 %prep
@@ -112,194 +51,50 @@ This package contains the WebGet audio fetching tool for Rivendell.
 
 
 %build
-export PYTHON=/usr/bin/python3
-%configure --libexecdir=@libexecdir@ --sysconfdir=@sysconfdir@ @RDXPORTDEBUG@
+%configure
 make -j @CPUS_AVAIL@
 
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-rm -f $RPM_BUILD_ROOT%{_libdir}/libqmysqlutf*
-mkdir $RPM_BUILD_ROOT/.qt
-touch $RPM_BUILD_ROOT/.qt/qt
-rm -rf $RPM_BUILD_ROOT/@libexecdir@/logos
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-cp conf/logrotate-sample $RPM_BUILD_ROOT/etc/logrotate.d/rivendell
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/rivendell
-cp conf/rivendell-env.sh $RPM_BUILD_ROOT%{_datadir}/rivendell/
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/logos
-cp icons/webget_logo.png $RPM_BUILD_ROOT/@DOC_PATH@/logos/
-cp AUTHORS $RPM_BUILD_ROOT/@DOC_PATH@/
-cp ChangeLog $RPM_BUILD_ROOT/@DOC_PATH@/
-cp LICENSES/GPLv2.txt $RPM_BUILD_ROOT/@DOC_PATH@/
-cp LICENSES/LGPLv2.txt $RPM_BUILD_ROOT/@DOC_PATH@/
-cp LICENSES/GFDL.txt $RPM_BUILD_ROOT/@DOC_PATH@/
-cp INSTALL $RPM_BUILD_ROOT/@DOC_PATH@/
-cp NEWS $RPM_BUILD_ROOT/@DOC_PATH@/
-cp README $RPM_BUILD_ROOT/@DOC_PATH@/
-cp UPGRADING $RPM_BUILD_ROOT/@DOC_PATH@/
-cp CODINGSTYLE $RPM_BUILD_ROOT/@DOC_PATH@/
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/examples
-cp docs/examples/*.cpi $RPM_BUILD_ROOT/@DOC_PATH@/examples/
-cp docs/examples/*.elr $RPM_BUILD_ROOT/@DOC_PATH@/examples/
-cp docs/examples/*.LOG $RPM_BUILD_ROOT/@DOC_PATH@/examples/
-cp docs/examples/*.tfc $RPM_BUILD_ROOT/@DOC_PATH@/examples/
-cp docs/examples/*.vti $RPM_BUILD_ROOT/@DOC_PATH@/examples/
-cp conf/*.conf $RPM_BUILD_ROOT/@DOC_PATH@/
-cat conf/rd.conf-sample | sed s/SyslogFacility=1/SyslogFacility=23/ > $RPM_BUILD_ROOT/@DOC_PATH@/rd.conf-sample
-cp conf/asound.conf-sample $RPM_BUILD_ROOT/@DOC_PATH@/
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/misc
-cp conf/syslog.conf-sample $RPM_BUILD_ROOT/@DOC_PATH@/
-mkdir -p $RPM_BUILD_ROOT/etc/fail2ban/filter.d
-cp conf/rivendell-webapi.conf $RPM_BUILD_ROOT/etc/fail2ban/filter.d/
-cp docs/misc/colors $RPM_BUILD_ROOT/@DOC_PATH@/misc/
-cp docs/misc/reports.txt $RPM_BUILD_ROOT/@DOC_PATH@/misc/
-cp docs/misc/ALSA.txt $RPM_BUILD_ROOT/@DOC_PATH@/misc/
-cp docs/misc/RDMONITOR.txt $RPM_BUILD_ROOT/@DOC_PATH@/misc/
-cp docs/misc/scheduler_formats.ods $RPM_BUILD_ROOT/@DOC_PATH@/misc/
-cp docs/misc/ando_interface.odt $RPM_BUILD_ROOT/@DOC_PATH@/misc/
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/apis
-cp docs/apis/*.pdf $RPM_BUILD_ROOT/@DOC_PATH@/apis/
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples
-helpers/install_python.sh apis/rivwebpyapi/tests/add_cart.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/add_cart.py
-helpers/install_python.sh apis/rivwebpyapi/tests/add_cut.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/add_cut.py
-helpers/install_python.sh apis/rivwebpyapi/tests/add_log.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/add_log.py
-helpers/install_python.sh apis/rivwebpyapi/tests/assign_sched_code.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/assign_sched_code.py
-helpers/install_python.sh apis/rivwebpyapi/tests/audio_info.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/audio_info.py
-helpers/install_python.sh apis/rivwebpyapi/tests/audio_store.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/audio_store.py
-helpers/install_python.sh apis/rivwebpyapi/tests/delete_audio.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/delete_audio.py
-helpers/install_python.sh apis/rivwebpyapi/tests/delete_log.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/delete_log.py
-helpers/install_python.sh apis/rivwebpyapi/tests/edit_cart.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/edit_cart.py
-helpers/install_python.sh apis/rivwebpyapi/tests/edit_cut.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/edit_cut.py
-helpers/install_python.sh apis/rivwebpyapi/tests/export_peaks.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/export_peaks.py
-helpers/install_python.sh apis/rivwebpyapi/tests/export.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/export.py
-helpers/install_python.sh apis/rivwebpyapi/tests/get_podcast.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/get_podcast.py
-helpers/install_python.sh apis/rivwebpyapi/tests/import.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/import.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_cart.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_cart.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_cart_sched_codes.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_cart_sched_codes.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_carts.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_carts.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_cut.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_cut.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_cuts.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_cuts.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_group.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_group.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_groups.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_groups.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_log.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_log.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_logs.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_logs.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_scheduler_codes.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_scheduler_codes.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_services.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_services.py
-helpers/install_python.sh apis/rivwebpyapi/tests/list_system_settings.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/list_system_settings.py
-helpers/install_python.sh apis/rivwebpyapi/tests/lock_log.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/lock_log.py
-helpers/install_python.sh apis/rivwebpyapi/tests/post_image.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/post_image.py
-helpers/install_python.sh apis/rivwebpyapi/tests/post_podcast.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/post_podcast.py
-helpers/install_python.sh apis/rivwebpyapi/tests/post_rss.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/post_rss.py
-helpers/install_python.sh apis/rivwebpyapi/tests/rehash.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/rehash.py
-helpers/install_python.sh apis/rivwebpyapi/tests/remove_cart.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/remove_cart.py
-helpers/install_python.sh apis/rivwebpyapi/tests/remove_cut.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/remove_cut.py
-helpers/install_python.sh apis/rivwebpyapi/tests/remove_image.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/remove_image.py
-helpers/install_python.sh apis/rivwebpyapi/tests/remove_podcast.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/remove_podcast.py
-helpers/install_python.sh apis/rivwebpyapi/tests/remove_rss.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/remove_rss.py
-helpers/install_python.sh apis/rivwebpyapi/tests/save_log.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/save_log.py
-helpers/install_python.sh apis/rivwebpyapi/tests/save_podcast.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/save_podcast.py
-helpers/install_python.sh apis/rivwebpyapi/tests/trim_audio.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/trim_audio.py
-helpers/install_python.sh apis/rivwebpyapi/tests/unassign_sched_code.py $RPM_BUILD_ROOT/@DOC_PATH@/apis/rivwebpyapi/examples/unassign_sched_code.py
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/dtds
-cp docs/dtds/*.html $RPM_BUILD_ROOT/@DOC_PATH@/dtds/
-cp docs/dtds/*.pdf $RPM_BUILD_ROOT/@DOC_PATH@/dtds/
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/tables
-cp docs/tables/*.txt $RPM_BUILD_ROOT/@DOC_PATH@/tables/
-mkdir -p $RPM_BUILD_ROOT/@DOC_PATH@/scripts
-cp scripts/rd_backup $RPM_BUILD_ROOT/@DOC_PATH@/scripts/
-cp scripts/start_traverso.sh $RPM_BUILD_ROOT/@DOC_PATH@/scripts/
-cp scripts/rd_mysql_enable_host.sh $RPM_BUILD_ROOT/@DOC_PATH@/scripts/
-cp scripts/rd_backup_system.sh $RPM_BUILD_ROOT/@DOC_PATH@/scripts/
-cp scripts/rd_restore_system.sh $RPM_BUILD_ROOT/@DOC_PATH@/scripts/
-cp scripts/engine_conv.py $RPM_BUILD_ROOT/@DOC_PATH@
-cp scripts/init_template_host.py $RPM_BUILD_ROOT/@DOC_PATH@
-rm -f $RPM_BUILD_ROOT/etc/auto.rd.audiostore
-rm -rf $RPM_BUILD_ROOT%{_libdir}/rivendell/pypad/__pycache__
-rm -rf $RPM_BUILD_ROOT%{_libdir}/python@PYTHON_VERSION@/site-packages/__pycache__
 
 
 %post
-/sbin/ldconfig
 /bin/systemctl daemon-reload
-/usr/sbin/groupadd -r -g 150 %{name} &>/dev/null || :
-/usr/sbin/useradd -o -u 150 -g %{name} -s /bin/false -r -c "Rivendell radio automation system" -d /var/snd %{name} &>/dev/null || :
-if test ! -e /var/snd ; then
-  mkdir -p /var/snd
-  chown rivendell:rivendell /var/snd
-  chmod 775 /var/snd
+/usr/sbin/groupadd -r -f lwsyslogger
+/usr/sbin/useradd -r -g lwsyslogger -s /bin/false -c "lwsyslogger system" lwsyslogger
+if test ! -e /var/log/lwsyslogger ; then
+    mkdir -p /var/log/lwsyslogger
+    chown lwsyslogger:lwsyslogger /var/log/lwsyslogger
+    chmod 770 /var/log/lwsyslogger
 fi
-if test ! -d /etc/rivendell.d ; then
-  mkdir -p /etc/rivendell.d
-  chmod 775 /etc/rivendell.d
+if test ! -e /etc/lwsyslogger.conf ; then
+    cp /usr/share/lwsyslogger/lwsyslogger-sample.conf /etc/lwsyslogger.conf
 fi
-if test ! -e /etc/rd.conf ; then
-  cp @DOC_PATH@/rd.conf-sample /etc/rivendell.d/rd-default.conf
-  ln -s /etc/rivendell.d/rd-default.conf /etc/rd.conf
-fi
-if test ! -h /etc/rd.conf ; then
-  mv /etc/rd.conf /etc/rivendell.d/rd-default.conf
-  ln -s /etc/rivendell.d/rd-default.conf /etc/rd.conf
-fi
-if test ! -e /etc/asound.conf ; then
-  cp @DOC_PATH@/asound.conf-sample /etc/asound.conf
-fi
-if test ! -e /etc/profile.d/rivendell-env.sh ; then
-  cp /usr/share/rivendell/rivendell-env.sh /etc/profile.d/
-fi
-%{_sbindir}/rddbmgr --modify
-/bin/systemctl restart rivendell
-/bin/systemctl enable rivendell
-if test "@DISTRO@" = "suse" ; then
-  /etc/init.d/apache2 restart
-  insserv -d -f /etc/init.d/apache2 /etc/init.d/rivendell $MYSQL_INIT
-fi
-if test "@DISTRO@" = "redhat" ; then
-  /bin/systemctl restart httpd
-  /bin/systemctl enable httpd
-fi
-if [ -x %{_bindir}/gtk-update-icon-cache ] ; then
-  %{_bindir}/gtk-update-icon-cache -f --quiet %{_datadir}/icons/hicolor || :
-fi
-if test ! -e @libexecdir@/logos ; then
-    mkdir -p @libexecdir@/logos
-fi
-if test ! -f @libexecdir@/logos/webget_logo.png ; then
-    cp @DOC_PATH@/logos/webget_logo.png @libexecdir@/logos/webget_logo.png
-fi
-mkdir -p /var/log/rivendell
-if test ! -e /etc/rsyslog.d/rivendell.conf ; then
-    cp @DOC_PATH@/syslog.conf-sample /etc/rsyslog.d/rivendell.conf
-fi
-/bin/systemctl restart rsyslog
-/bin/systemctl reload firewalld
-/usr/sbin/groupadd -r -g 151 pypad &>/dev/null || :
-/usr/sbin/useradd -o -u 151 -g pypad -s /bin/false -r -c "Rivendell PyPAD scripts" -d /dev/null pypad &>/dev/null || :
-exit 0
+/bin/systemctl restart lwsyslogger
+/bin/systemctl enable lwsyslogger
 
 
-%preun
-if test "$1" = "0" ; then
-  /bin/systemctl stop rivendell
-  if test "@DISTRO@" = "suse" ; then
-    insserv -r -d -f /etc/init.d/rivendell
-  fi
-  if test "@DISTRO@" = "redhat" ; then
-    /bin/systemctl disable rivendell
-    /bin/systemctl stop rivendell
-  fi
-fi
-exit 0
-
-
-%postun
+%post utils
 if [ -x %{_bindir}/gtk-update-icon-cache ] ; then
   %{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
 fi
+
+
+%preun
+/bin/systemctl stop lwsyslogger
+/bin/systemctl disable lwsyslogger
+
+
+%postun
 /bin/systemctl daemon-reload
-/bin/systemctl reload firewalld
+
+
+%postun utils
+if [ -x %{_bindir}/gtk-update-icon-cache ] ; then
+  %{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
+fi
 
 
 %clean
@@ -307,303 +102,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%{_bindir}/rdadmin
-%{_bindir}/rdairplay
-%{_bindir}/rdpanel
-%{_bindir}/rdcartslots
-%{_bindir}/rdcatch
-%{_bindir}/rdgen
-%{_bindir}/rdlibrary
-%{_bindir}/rdlogedit
-%{_bindir}/rdlogmanager
-%{_bindir}/rdcastmanager
-%{_bindir}/rdlogin
-%{_bindir}/rmlsend
-%{_bindir}/rdsoftkeys
-%{_bindir}/rdpopup
-%{_bindir}/rdalsaconfig
-%{_bindir}/rdalsaconfig-root
-%{_bindir}/rdgpimon
-%{_bindir}/rdclilogedit
-%{_bindir}/rddbconfig
-%{_bindir}/rddbconfig-root
-%{_bindir}/rddelete
-%{_bindir}/rdexport
-%{_bindir}/rdimport
-%{_bindir}/rdmetadata
-%{_bindir}/rdmaint
-%{_bindir}/rdcollect
-%{_bindir}/rdconvert
-%{_bindir}/rdcheckcuts
-%{_bindir}/rd_audio_sync
-%{_bindir}/rd_config
-%{_bindir}/sage_endec_rwt.sh
-%{_bindir}/rd_backup
-%{_bindir}/rdmemcheck.sh
-%{_bindir}/rdrender
-%{_datadir}/rivendell/*.qm
-%{_datadir}/rivendell/*.xsl
-%{_datadir}/rivendell/rivendell-env.sh
-%{_datadir}/icons/hicolor/16x16/apps/rivendell.png
-%{_datadir}/icons/hicolor/16x16/apps/rdadmin.png
-%{_datadir}/icons/hicolor/16x16/apps/rdairplay.png
-%{_datadir}/icons/hicolor/16x16/apps/rdcartslots.png
-%{_datadir}/icons/hicolor/16x16/apps/rdcastmanager.png
-%{_datadir}/icons/hicolor/16x16/apps/rdcatch.png
-%{_datadir}/icons/hicolor/16x16/apps/rdlibrary.png
-%{_datadir}/icons/hicolor/16x16/apps/rdlogedit.png
-%{_datadir}/icons/hicolor/16x16/apps/rdlogmanager.png
-%{_datadir}/icons/hicolor/16x16/apps/rdpanel.png
-%{_datadir}/icons/hicolor/22x22/apps/rivendell.png
-%{_datadir}/icons/hicolor/22x22/apps/rdadmin.png
-%{_datadir}/icons/hicolor/22x22/apps/rdairplay.png
-%{_datadir}/icons/hicolor/22x22/apps/rdcartslots.png
-%{_datadir}/icons/hicolor/22x22/apps/rdcastmanager.png
-%{_datadir}/icons/hicolor/22x22/apps/rdcatch.png
-%{_datadir}/icons/hicolor/22x22/apps/rdlibrary.png
-%{_datadir}/icons/hicolor/22x22/apps/rdlogedit.png
-%{_datadir}/icons/hicolor/22x22/apps/rdlogmanager.png
-%{_datadir}/icons/hicolor/22x22/apps/rdpanel.png
-%{_datadir}/icons/hicolor/32x32/apps/rivendell.png
-%{_datadir}/icons/hicolor/32x32/apps/rdadmin.png
-%{_datadir}/icons/hicolor/32x32/apps/rdairplay.png
-%{_datadir}/icons/hicolor/32x32/apps/rdcartslots.png
-%{_datadir}/icons/hicolor/32x32/apps/rdcastmanager.png
-%{_datadir}/icons/hicolor/32x32/apps/rdcatch.png
-%{_datadir}/icons/hicolor/32x32/apps/rdlibrary.png
-%{_datadir}/icons/hicolor/32x32/apps/rdlogedit.png
-%{_datadir}/icons/hicolor/32x32/apps/rdlogmanager.png
-%{_datadir}/icons/hicolor/32x32/apps/rdpanel.png
-%{_datadir}/icons/hicolor/64x64/apps/rivendell.png
-%{_datadir}/icons/hicolor/64x64/apps/rdadmin.png
-%{_datadir}/icons/hicolor/64x64/apps/rdairplay.png
-%{_datadir}/icons/hicolor/64x64/apps/rdcartslots.png
-%{_datadir}/icons/hicolor/64x64/apps/rdcastmanager.png
-%{_datadir}/icons/hicolor/64x64/apps/rdcatch.png
-%{_datadir}/icons/hicolor/64x64/apps/rdlibrary.png
-%{_datadir}/icons/hicolor/64x64/apps/rdlogedit.png
-%{_datadir}/icons/hicolor/64x64/apps/rdlogmanager.png
-%{_datadir}/icons/hicolor/64x64/apps/rdpanel.png
-%{_datadir}/icons/hicolor/128x128/apps/rivendell.png
-%{_datadir}/icons/hicolor/128x128/apps/rdadmin.png
-%{_datadir}/icons/hicolor/128x128/apps/rdairplay.png
-%{_datadir}/icons/hicolor/128x128/apps/rdcartslots.png
-%{_datadir}/icons/hicolor/128x128/apps/rdcastmanager.png
-%{_datadir}/icons/hicolor/128x128/apps/rdcatch.png
-%{_datadir}/icons/hicolor/128x128/apps/rdlibrary.png
-%{_datadir}/icons/hicolor/128x128/apps/rdlogedit.png
-%{_datadir}/icons/hicolor/128x128/apps/rdlogmanager.png
-%{_datadir}/icons/hicolor/128x128/apps/rdpanel.png
-%{_datadir}/icons/hicolor/256x256/apps/rivendell.png
-%{_datadir}/icons/hicolor/256x256/apps/rdadmin.png
-%{_datadir}/icons/hicolor/256x256/apps/rdairplay.png
-%{_datadir}/icons/hicolor/256x256/apps/rdcartslots.png
-%{_datadir}/icons/hicolor/256x256/apps/rdcastmanager.png
-%{_datadir}/icons/hicolor/256x256/apps/rdcatch.png
-%{_datadir}/icons/hicolor/256x256/apps/rdlibrary.png
-%{_datadir}/icons/hicolor/256x256/apps/rdlogedit.png
-%{_datadir}/icons/hicolor/256x256/apps/rdlogmanager.png
-%{_datadir}/icons/hicolor/256x256/apps/rdpanel.png
-%{_datadir}/icons/hicolor/512x512/apps/rivendell.png
-%{_datadir}/icons/hicolor/512x512/apps/rdadmin.png
-%{_datadir}/icons/hicolor/512x512/apps/rdairplay.png
-%{_datadir}/icons/hicolor/512x512/apps/rdcartslots.png
-%{_datadir}/icons/hicolor/512x512/apps/rdcastmanager.png
-%{_datadir}/icons/hicolor/512x512/apps/rdcatch.png
-%{_datadir}/icons/hicolor/512x512/apps/rdlibrary.png
-%{_datadir}/icons/hicolor/512x512/apps/rdlogedit.png
-%{_datadir}/icons/hicolor/512x512/apps/rdlogmanager.png
-%{_datadir}/icons/hicolor/512x512/apps/rdpanel.png
-%{_datadir}/pixmaps/rivendell/rdairplay_logo.png
-%{_datadir}/pixmaps/rivendell/rdairplay_white_logo.png
-%{_datadir}/pixmaps/rivendell/rdairplay_skin.png
-%{_datadir}/pixmaps/rivendell/rdpanel_skin.png
-%{_datadir}/X11/fvwm2/pixmaps/mini.rivendell.xpm
-%{_datadir}/X11/fvwm2/pixmaps/rivendell.xpm
-%{_datadir}/applications/rivendell-rdadmin.desktop
-%{_datadir}/applications/rivendell-rdlogin.desktop
-%{_datadir}/applications/rivendell-rdairplay.desktop
-%{_datadir}/applications/rivendell-rdmonitor.desktop
-%{_datadir}/applications/rivendell-rdpanel.desktop
-%{_datadir}/applications/rivendell-rdcartslots.desktop
-%{_datadir}/applications/rivendell-rdcatch.desktop
-%{_datadir}/applications/rivendell-rdgpimon.desktop
-%{_datadir}/applications/rivendell-rdalsaconfig.desktop
-%{_datadir}/applications/rivendell-rddbconfig.desktop
-%{_datadir}/applications/rivendell-rdlibrary.desktop
-%{_datadir}/applications/rivendell-rdlogedit.desktop
-%{_datadir}/applications/rivendell-rdlogmanager.desktop
-%{_datadir}/applications/rivendell-rdcastmanager.desktop
-%{_datadir}/applications/rivendell-rmlsend.desktop
-%{_datadir}/applications/rivendell-rdsoftkeys.desktop
-%{_datadir}/desktop-directories/rivendell-configuration.directory
-%{_datadir}/desktop-directories/rivendell-documentation.directory
-%{_datadir}/desktop-directories/rivendell-logtools.directory
-%{_datadir}/desktop-directories/rivendell-rivendell.directory
-%{_datadir}/desktop-directories/rivendell-utilities.directory
-/etc/xdg/menus/applications-merged/rivendell-rivendell.menu
-/etc/logrotate.d/rivendell
-/.qt/qt
-@libexecdir@/*.gif
-@libexecdir@/*.html
-@libexecdir@/editcart.js
-@libexecdir@/editcut.js
-@libexecdir@/utils.js
-@libexecdir@/*.png
-%attr(6755,root,root) @libexecdir@/rdxport.cgi
-@sysconfdir@/rd-bin.conf
-/etc/security/console.apps/rdalsaconfig-root
-/etc/pam.d/rdalsaconfig-root
-/etc/security/console.apps/rddbconfig-root
-/etc/pam.d/rddbconfig-root
-/etc/pam.d/rivendell
-/etc/fail2ban/filter.d/rivendell-webapi.conf
-/lib/systemd/system/rivendell.service
-%{_mandir}/man1/rdadmin.1.gz
-%{_mandir}/man1/rdairplay.1.gz
-%{_mandir}/man1/rdalsaconfig.1.gz
-%{_mandir}/man1/rdclilogedit.1.gz
-%{_mandir}/man1/rdconvert.1.gz
-%{_mandir}/man1/rdexport.1.gz
-%{_mandir}/man1/rdimport.1.gz
-%{_mandir}/man1/rdlogmanager.1.gz
-%{_mandir}/man1/rdmetadata.1.gz
-%{_mandir}/man1/rdpanel.1.gz
-%{_mandir}/man1/rdrender.1.gz
-%{_mandir}/man1/rmlsend.1.gz
-%{_mandir}/man1/rdsinglestart.1.gz
-%{_mandir}/man1/rdsoftkeys.1.gz
-%{_mandir}/man5/rd.conf.5.gz
-%{_mandir}/man7/rivendell.7.gz
-%{_mandir}/man8/rddbmgr.8.gz
-%{_mandir}/man8/rdmarkerset.8.gz
-%{_mandir}/man8/rdservice.8.gz
-@DOC_PATH@/*
-%{_libdir}/librd-@VERSION@.so
-%{_libdir}/librd.a
-%{_libdir}/librd.la
-%{_libdir}/librd.so
-%{_libdir}/python@PYTHON_VERSION@/site-packages/rivendellaudio/*
-%{_sbindir}/rdservice
-%{_sbindir}/caed
-%{_sbindir}/ripcd
-%{_sbindir}/rdcatchd
-%{_sbindir}/rdvairplayd
-%{_sbindir}/rdrepld
-%{_sbindir}/rdpadd
-%{_sbindir}/rdpadengined
-%{_sbindir}/rdrssd
-%{_sbindir}/rdmarkerset
-%{_sbindir}/rdcleandirs
-%{_bindir}/rdsinglestart
-%{_sbindir}/rddbmgr
-@HPI_FILE1@
-@HPI_FILE2@
-@HPI_FILE3@
-@HPI_FILE4@
-/etc/auto.master.d/rd.audiostore.autofs
-%{_datadir}/rivendell/opsguide.pdf
-%{_datadir}/rivendell/html/*
-%{_datadir}/rivendell/apis
-%{_datadir}/rivendell/manpages
-/usr/lib/rivendell/pypad/*
-/usr/lib/firewalld/services/rivendell.xml
-/usr/lib/rivendell/cdn/aka_purge.sh
-/usr/lib/rivendell/cdn/akamai_purge.cdn
+%{_sbindir}/lwsyslogger
+%{_datadir}/lwsyslogger/lwsyslogger-sample.conf
+%{_mandir}/man5/lwsyslogger.conf.5.gz
+%{_mandir}/man8/lwsyslogger.8.gz
+/usr/lib/systemd/system/lwsyslogger.service
 
 
-%files webapi
-%{_libdir}/librivwebcapi.so.@INTERFACE_RIVWEBCAPI_MAJOR@
-%{_libdir}/librivwebcapi.so.@INTERFACE_RIVWEBCAPI_MAJOR@.@INTERFACE_RIVWEBCAPI_MINOR@.@INTERFACE_RIVWEBCAPI_POINT@
-
-
-%files importers
-%{_bindir}/wings_filter
-%{_bindir}/rivendell_filter
-%{_bindir}/nexgen_filter
-%{_bindir}/crc-unity4k.sh
-%{_bindir}/rdcatch_copy
-%{_bindir}/panel_copy
-
-
-%files opsguide
-%{_datadir}/rivendell/opsguide.pdf
-%{_datadir}/rivendell/html/*
-%{_datadir}/rivendell/apis
-%{_datadir}/rivendell/manpages
-
-
-%files devel
-%{_libdir}/librivwebcapi.so
-%{_libdir}/librivwebcapi.a
-%{_libdir}/librivwebcapi.la
-%{_libdir}/pkgconfig/rivwebcapi.pc
-%{_includedir}/rivwebcapi/*
-%{_datadir}/man/man7/rd_addcart.7.gz
-%{_datadir}/man/man7/rd_addcut.7.gz
-%{_datadir}/man/man7/rd_addlog.7.gz
-%{_datadir}/man/man7/rd_assignschedcode.7.gz
-%{_datadir}/man/man7/rd_audioinfo.7.gz
-%{_datadir}/man/man7/rd_audiostore.7.gz
-%{_datadir}/man/man7/rd_copyaudio.7.gz
-%{_datadir}/man/man7/rd_createticket.7.gz
-%{_datadir}/man/man7/rd_deleteaudio.7.gz
-%{_datadir}/man/man7/rd_deletelog.7.gz
-%{_datadir}/man/man7/rd_deletepodcast.7.gz
-%{_datadir}/man/man7/rd_editcart.7.gz
-%{_datadir}/man/man7/rd_editcut.7.gz
-%{_datadir}/man/man7/rd_export.7.gz
-%{_datadir}/man/man7/rd_exportpeaks.7.gz
-%{_datadir}/man/man7/rd_getuseragent.7.gz
-%{_datadir}/man/man7/rd_getversion.7.gz
-%{_datadir}/man/man7/rd_import.7.gz
-%{_datadir}/man/man7/rd_listcart.7.gz
-%{_datadir}/man/man7/rd_listcartcuts.7.gz
-%{_datadir}/man/man7/rd_listcarts.7.gz
-%{_datadir}/man/man7/rd_listcartscuts.7.gz
-%{_datadir}/man/man7/rd_listcartschedcodes.7.gz
-%{_datadir}/man/man7/rd_listcut.7.gz
-%{_datadir}/man/man7/rd_listcuts.7.gz
-%{_datadir}/man/man7/rd_listgroup.7.gz
-%{_datadir}/man/man7/rd_listgroups.7.gz
-%{_datadir}/man/man7/rd_listlog.7.gz
-%{_datadir}/man/man7/rd_listlogs.7.gz
-%{_datadir}/man/man7/rd_listschedcodes.7.gz
-%{_datadir}/man/man7/rd_listservices.7.gz
-%{_datadir}/man/man7/rd_listsystemsettings.7.gz
-%{_datadir}/man/man7/rd_postimage.7.gz
-%{_datadir}/man/man7/rd_postpodcast.7.gz
-%{_datadir}/man/man7/rd_postrss.7.gz
-%{_datadir}/man/man7/rd_removecart.7.gz
-%{_datadir}/man/man7/rd_removecut.7.gz
-%{_datadir}/man/man7/rd_removeimage.7.gz
-%{_datadir}/man/man7/rd_removepodcast.7.gz
-%{_datadir}/man/man7/rd_removerss.7.gz
-%{_datadir}/man/man7/rd_savelog.7.gz
-%{_datadir}/man/man7/rd_savepodcast.7.gz
-%{_datadir}/man/man7/rd_trimaudio.7.gz
-%{_datadir}/man/man7/rd_unassignschedcode.7.gz
-
-
-%files select
-%{_bindir}/rdselect
-%attr(4755,root,root) %{_bindir}/rdselect_helper
-%{_bindir}/rdmonitor
-/etc/X11/xinit/xinitrc.d/start-rdmonitor.sh
-
-
-%files webget
-%attr(6755,root,root) @libexecdir@/webget.cgi
-@libexecdir@/webget.js
-
-
-%post select
-touch /etc/auto.rd.audiostore
-systemctl restart autofs
-
-
-%postun select
-systemctl restart autofs
+%files utils
+%{_bindir}/send_syslog
+%{_datadir}/applications/lwsyslogger-send_syslog.desktop
+%{_datadir}/icons/hicolor/16x16/apps/send_syslog.png
+%{_datadir}/icons/hicolor/48x48/apps/send_syslog.png
 
 
 %changelog

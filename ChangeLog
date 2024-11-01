@@ -78,3 +78,5 @@
 	* Renamed the 'src/tests/' directory to 'src/utils/'.
 2024-10-31 Fred Gleason <fredg@paravelsystems.com>
 	* Added desktop integration for send_syslog(1).
+2024-11-01 Fred Gleason <fredg@paravelsystems.com>
+	* Got the 'make rpm' target working.
