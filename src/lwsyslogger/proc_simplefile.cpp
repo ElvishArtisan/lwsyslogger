@@ -48,14 +48,6 @@ ProcSimpleFile::ProcSimpleFile(const QString &id,Profile *p,QObject *parent)
   lsyslog(Message::SeverityDebug,"using base_dir \"%s\"",
 	  d_base_dir->path().toUtf8().constData());
   d_base_file=NULL;
-
-  values=p->stringValues("Processor",id,"Template");
-  if(values.isEmpty()) {
-    fprintf(stderr,"lwsyslogger: missing Template in processor \"%s\"\n",
-	    id.toUtf8().constData());
-    exit(1);
-  }
-  d_template=values.last();
 }
 
 
@@ -67,7 +59,7 @@ Processor::Type ProcSimpleFile::type() const
 
 void ProcSimpleFile::rotateLogs(const QDateTime &now)
 {
-  printf("rotateLogs(%s)\n",now.toString("yyyy-MM-dd hh:mm:ss").toUtf8().constData());
+  //  printf("rotateLogs(%s)\n",now.toString("yyyy-MM-dd hh:mm:ss").toUtf8().constData());
   
   //
   // Rotate Base File
@@ -103,7 +95,7 @@ void ProcSimpleFile::processMessage(Message *msg,const QHostAddress &from_addr)
   }
   if(d_base_file!=NULL) {
     fprintf(d_base_file,"%s\n",
-	    msg->resolveWildcards(d_template).toUtf8().constData());
+	    msg->resolveWildcards(messageTemplate()).toUtf8().constData());
     fflush(d_base_file);
   }
 }

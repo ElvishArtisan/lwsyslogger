@@ -35,7 +35,7 @@ class Processor : public QObject
 {
   Q_OBJECT
  public:
-  enum Type {TypeSimpleFile=0,TypeFileByHostname=1,TypeLast=2};
+  enum Type {TypeSimpleFile=0,TypeFileByHostname=1,TypeSendmail=2,TypeLast=3};
   Processor(const QString &id,Profile *c,QObject *parent=0);
   QString id() const;
   bool overrideTimestamps();
@@ -52,6 +52,7 @@ class Processor : public QObject
 
  protected:
   virtual void processMessage(Message *msg,const QHostAddress &from_addr)=0;
+  QString messageTemplate() const;
   void rotateLogFile(const QString &filename,const QDateTime &now) const;
   bool expireLogFile(const QString &pathname,const QDateTime &now) const;
   Profile *config() const;
@@ -82,6 +83,7 @@ class Processor : public QObject
   bool d_dry_run;
   int d_deduplication_timeout;
   QTimer *d_deduplication_timer;
+  QString d_message_template;
   Message d_last_message;
   int d_last_message_count;
   bool d_override_timestamps;

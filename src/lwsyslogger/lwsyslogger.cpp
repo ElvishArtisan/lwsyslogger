@@ -158,7 +158,6 @@ MainObject::MainObject(QObject *parent)
   }
   QStringList config_dirs=
     d_profile->stringValues("Global","Default","IncludeConfig");
-  printf("SIZE: %d\n",config_dirs.size());
   for(int i=0;i<config_dirs.size();i++) {
     printf("trying[%d]: %s\n",i,config_dirs.at(i).toUtf8().constData());
     int num=d_profile->loadDirectory(config_dirs.at(i),&err_msgs);

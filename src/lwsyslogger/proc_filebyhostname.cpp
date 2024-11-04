@@ -38,14 +38,6 @@ ProcFileByHostname::ProcFileByHostname(const QString &id,Profile *p,
   }
   lsyslog(Message::SeverityDebug,"using base_dir \"%s\"",
 	  d_base_dir->path().toUtf8().constData());
-
-  values=p->stringValues("Processor",id,"Template");
-  if(values.isEmpty()) {
-    fprintf(stderr,"lwsyslogger: missing Template in processor \"%s\"\n",
-	    id.toUtf8().constData());
-    exit(1);
-  }
-  d_template=values.last();
 }
 
 
@@ -102,6 +94,6 @@ void ProcFileByHostname::processMessage(Message *msg,
     }
     d_files[pathname]=f;
   }
-  fprintf(f,"%s\n",msg->resolveWildcards(d_template).toUtf8().constData());
+  fprintf(f,"%s\n",msg->resolveWildcards(messageTemplate()).toUtf8().constData());
   fflush(f);
 }

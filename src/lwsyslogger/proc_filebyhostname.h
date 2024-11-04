@@ -40,7 +40,6 @@ class ProcFileByHostname : public Processor
  private:
   QDir *d_base_dir;
   QMap<QString,FILE *> d_files;
-  QString d_template;
 };
 
 

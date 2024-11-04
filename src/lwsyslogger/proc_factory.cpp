@@ -19,6 +19,7 @@
 //
 
 #include "proc_filebyhostname.h"
+#include "proc_sendmail.h"
 #include "proc_simplefile.h"
 
 Processor *ProcessorFactory(Processor::Type type,const QString &id,Profile *p,
@@ -33,6 +34,10 @@ Processor *ProcessorFactory(Processor::Type type,const QString &id,Profile *p,
 
   case Processor::TypeFileByHostname:
     proc=new ProcFileByHostname(id,p,parent);
+    break;
+
+  case Processor::TypeSendmail:
+    proc=new ProcSendmail(id,p,parent);
     break;
 
   case Processor::TypeLast:

@@ -177,6 +177,88 @@
 	 </varlistentry>
 	 <varlistentry>
 	   <term>
+	     <userinput>EMailFromAddress = <replaceable>email-addr</replaceable></userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       An e-mail address, to be used to uniquely identify the
+	       originator of e-mail messages.
+	     </para>
+	     <para>
+	       This parameter is used only by <userinput>Sendmail</userinput>
+	       processors, and will be ignored by all other types.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
+	     <userinput>EMailSubjectLine = <replaceable>email-addr</replaceable></userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       A unique template to be used to generate the subject line for an
+	       outgoing e-mail. See the <userinput>Template=</userinput>
+	       parameter for the set of supported wildcards.
+	     </para>
+	     <para>
+	       This parameter is used only by <userinput>Sendmail</userinput>
+	       processors, and will be ignored by all other types.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
+	     <userinput>EMailThrottleLimit = <replaceable>msg-count</replaceable></userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       Allow no more than <replaceable>msg-count</replaceable>
+	       messages to be sent in a given time period (see the
+	       <userinput>EMailThrottlePeriod=</userinput> parameter). Setting
+	       this parameter to <userinput>0</userinput> will disable
+	       message throttling.
+	     </para>
+	     <para>
+	       This parameter is used only by <userinput>Sendmail</userinput>
+	       processors, and will be ignored by all other types.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
+	     <userinput>EMailThrottlePeriod = <replaceable>period-secs</replaceable></userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       Set the time period (in seconds) to be used when performing
+	       message throttling. (See the
+	       <userinput>EMailThrottleLimit=</userinput> parameter). Setting
+	       this parameter to <userinput>0</userinput> will disable
+	       message throttling.
+	     </para>
+	     <para>
+	       This parameter is used only by <userinput>Sendmail</userinput>
+	       processors, and will be ignored by all other types.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
+	     <userinput>EMailToAddress = <replaceable>email-addr</replaceable></userinput>
+	   </term>
+	   <listitem>
+	     <para>
+	       An e-mail address, to indicate a recipient of e-mail messages.
+	       This parameter may be given multiple times.
+	     </para>
+	     <para>
+	       This parameter is used only by <userinput>Sendmail</userinput>
+	       processors, and will be ignored by all other types.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
 	     <userinput>Facility = <replaceable>facility-list</replaceable></userinput>
 	   </term>
 	   <listitem>
@@ -405,6 +487,15 @@
 		       <command>lwsyslogger</command><manvolnum>8</manvolnum>
 		       will automatically replace any hyphens ('-') in the
 		       hostname with underscores ('_').
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term><userinput>SendMail</userinput></term>
+		   <listitem>
+		     <para>
+		       Forward messages to one or more specified e-mail
+		       addresses.
 		     </para>
 		   </listitem>
 		 </varlistentry>

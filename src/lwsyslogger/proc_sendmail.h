@@ -1,6 +1,6 @@
-// proc_simplefile.h
+// proc_sendmail.h
 //
-// Simple File Processor
+// Processor for sending mail.
 //
 //   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 //
@@ -18,30 +18,34 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#ifndef PROC_SIMPLEFILE_H
-#define PROC_SIMPLEFILE_H
-
-#include <QDir>
+#ifndef PROC_SENDMAIL_H
+#define PROC_SENDMAIL_H
 
 #include "processor.h"
 
-class ProcSimpleFile : public Processor
+class ProcSendmail : public Processor
 {
   Q_OBJECT
  public:
-  ProcSimpleFile(const QString &id,Profile *p,QObject *parent);
-  Processor::Type type() const;
-  void rotateLogs(const QDateTime &now);
+  ProcSendmail(const QString &id,Profile *p,QObject *parent=0);
+  Type type() const;
+  bool start(QString *err_msg);
 
  protected:
   void processMessage(Message *msg,const QHostAddress &from_addr);
 
+ private slots:
+  void throttleTimeoutData();
+
  private:
-  QString d_base_pathname;
-  QString d_base_filename;
-  QDir *d_base_dir;
-  FILE *d_base_file;
+  QString d_from_address;
+  QStringList d_to_addresses;
+  QString d_subject_line;
+  int d_throttle_period;
+  int d_throttle_limit;
+  int d_throttle_counter;
+  QTimer *d_throttle_timer;
 };
 
 
-#endif  // PROC_SIMPLEFILE_H
+#endif  // PROCESSOR_H

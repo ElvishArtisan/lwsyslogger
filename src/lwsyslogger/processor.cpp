@@ -136,6 +136,17 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
 	  d_address_filter->subnets().toUtf8().constData());
 
   //
+  // Message Template
+  //
+  values=p->stringValues("Processor",id,"Template");
+  if(values.isEmpty()) {
+    fprintf(stderr,"lwsyslogger: missing Template in processor \"%s\"\n",
+	    id.toUtf8().constData());
+    exit(1);
+  }
+  d_message_template=values.last();
+
+  //
   // Deduplication Values
   //
   d_deduplication_timeout=0;  // Default value
@@ -237,6 +248,10 @@ QString Processor::typeString(Processor::Type type)
     ret="FileByHostname";
     break;
 
+  case Processor::TypeSendmail:
+    ret="Sendmail";
+    break;
+
   case Processor::TypeLast:
     break;
   }
@@ -285,6 +300,12 @@ void Processor::process(Message *msg,const QHostAddress &from_addr)
 	
     processMessage(msg,from_addr);
   }
+}
+
+
+QString Processor::messageTemplate() const
+{
+  return d_message_template;
 }
 
 
