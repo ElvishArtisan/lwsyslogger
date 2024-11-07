@@ -177,6 +177,21 @@
 	 </varlistentry>
 	 <varlistentry>
 	   <term>
+	     <userinput>DestinationAddress = <replaceable>addr</replaceable></userinput>:<replaceable>port</replaceable>
+	   </term>
+	   <listitem>
+	     <para>
+	       IP address and port to which to forward messages. This parameter
+	       may be specified multiple times.
+	     </para>
+	     <para>
+	       This parameter is used only by <userinput>UDP</userinput>
+	       processor, and will be ignored by all other types.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 <varlistentry>
+	   <term>
 	     <userinput>EMailFromAddress = <replaceable>email-addr</replaceable></userinput>
 	   </term>
 	   <listitem>
@@ -504,6 +519,15 @@
 		   <listitem>
 		     <para>
 		       Log messages to a single file.
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term><userinput>UDP</userinput></term>
+		   <listitem>
+		     <para>
+		       Forward the message to another syslog server, using
+		       UDP as per RFC-5426.
 		     </para>
 		   </listitem>
 		 </varlistentry>

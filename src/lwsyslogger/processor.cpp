@@ -138,13 +138,11 @@ Processor::Processor(const QString &id,Profile *p,QObject *parent)
   //
   // Message Template
   //
+  d_message_template="%t %h %m";
   values=p->stringValues("Processor",id,"Template");
-  if(values.isEmpty()) {
-    fprintf(stderr,"lwsyslogger: missing Template in processor \"%s\"\n",
-	    id.toUtf8().constData());
-    exit(1);
+  if(!values.isEmpty()) {
+    d_message_template=values.last();
   }
-  d_message_template=values.last();
 
   //
   // Deduplication Values
@@ -250,6 +248,10 @@ QString Processor::typeString(Processor::Type type)
 
   case Processor::TypeSendmail:
     ret="Sendmail";
+    break;
+
+  case Processor::TypeUdp:
+    ret="UDP";
     break;
 
   case Processor::TypeLast:

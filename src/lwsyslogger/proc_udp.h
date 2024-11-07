@@ -1,6 +1,6 @@
-// proc_factory.cpp
+// proc_udp.h
 //
-// Processor Factory
+// Processor for forwarding syslog messagea via UDP.
 //
 //   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 //
@@ -18,36 +18,30 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#include "proc_filebyhostname.h"
-#include "proc_sendmail.h"
-#include "proc_simplefile.h"
-#include "proc_udp.h"
+#ifndef PROC_UDP_H
+#define PROC_UDP_H
 
-Processor *ProcessorFactory(Processor::Type type,const QString &id,Profile *p,
-			    QObject *parent)
+#include <stdint.h>
+
+#include <QUdpSocket>
+
+#include "processor.h"
+
+class ProcUdp : public Processor
 {
-  Processor *proc=NULL;
-  
-  switch(type) {
-  case Processor::TypeSimpleFile:
-    proc=new ProcSimpleFile(id,p,parent);
-    break;
+  Q_OBJECT
+ public:
+  ProcUdp(const QString &id,Profile *c,QObject *parent=0);
+  Processor::Type type() const;
 
-  case Processor::TypeFileByHostname:
-    proc=new ProcFileByHostname(id,p,parent);
-    break;
+ protected:
+  void processMessage(Message *msg,const QHostAddress &from_addr);
 
-  case Processor::TypeSendmail:
-    proc=new ProcSendmail(id,p,parent);
-    break;
+ private:
+  QList<QHostAddress> d_destination_addresses;
+  QList<uint16_t> d_destination_ports;
+  QUdpSocket *d_send_socket;
+};
 
-  case Processor::TypeUdp:
-    proc=new ProcUdp(id,p,parent);
-    break;
 
-  case Processor::TypeLast:
-    break;
-  }
-
-  return proc;
-}
+#endif  // PROCESSOR_H

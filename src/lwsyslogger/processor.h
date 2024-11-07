@@ -35,8 +35,9 @@ class Processor : public QObject
 {
   Q_OBJECT
  public:
-  enum Type {TypeSimpleFile=0,TypeFileByHostname=1,TypeSendmail=2,TypeLast=3};
-  Processor(const QString &id,Profile *c,QObject *parent=0);
+  enum Type {TypeSimpleFile=0,TypeFileByHostname=1,TypeSendmail=2,TypeUdp=3,
+    TypeLast=4};
+  Processor(const QString &id,Profile *p,QObject *parent=0);
   QString id() const;
   bool overrideTimestamps();
   bool dryRun() const;

@@ -164,21 +164,28 @@ QString Message::msg() const
 }
 
 
-QByteArray Message::toByteArray()
+QByteArray Message::toByteArray(int version)
 {
   d_timestamp=QDateTime::currentDateTime();
   QByteArray ret;
-
-  ret+=QString::asprintf("<%u>",priority()).toUtf8();
-  ret+=QString::asprintf("%u ",SYSLOG_VERSION).toUtf8();
-  ret+=(d_timestamp.toString("yyyy-MM-ddThh:mm:ss.zzz")+" ").toUtf8();
-  ret+=(nillified(d_host_name)+" ").toUtf8();
-  ret+=(nillified(d_app_name)+" ").toUtf8();
-  ret+=(nillified(d_proc_id)+" ").toUtf8();
-  ret+=QString("- ").toUtf8();  // No structured data
-  ret+=(nillified(d_msg_id)+" ").toUtf8();
-  ret+=UTF8_BOM;
-  ret+=d_msg.toUtf8();
+  if(version==1) {  // As per RFC-5424
+    ret+=QString::asprintf("<%u>",priority()).toUtf8();
+    ret+=QString::asprintf("%u ",SYSLOG_VERSION).toUtf8();
+    ret+=(d_timestamp.toString("yyyy-MM-ddThh:mm:ss.zzz")+" ").toUtf8();
+    ret+=(nillified(d_host_name)+" ").toUtf8();
+    ret+=(nillified(d_app_name)+" ").toUtf8();
+    ret+=(nillified(d_proc_id)+" ").toUtf8();
+    ret+=QString("- ").toUtf8();  // No structured data
+    ret+=(nillified(d_msg_id)+" ").toUtf8();
+    ret+=UTF8_BOM;
+    ret+=d_msg.toUtf8();
+  }
+  else {  // As described in RFC-3164
+    ret+=QString::asprintf("<%u>",priority()).toUtf8();
+    ret+=(d_timestamp.toString("MMM dd hh:mm:ss")+" ").toUtf8();
+    ret+=(nillified(d_host_name)+" ").toUtf8();
+    ret+=d_msg.toUtf8();
+  }
 
   return ret;
 }

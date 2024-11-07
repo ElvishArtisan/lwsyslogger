@@ -60,7 +60,7 @@ class Message
   QString procId() const;
   QString msgId() const;
   QString msg() const;
-  QByteArray toByteArray();
+  QByteArray toByteArray(int version);
   QString resolveWildcards(const QString &fmt);
   bool isDuplicateOf(const Message &msg) const;
   void clear();
