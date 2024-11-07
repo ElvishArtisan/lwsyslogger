@@ -105,3 +105,6 @@
 	* Added a 'UDP' processor.
 2024-11-07 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 0.6.0.
+2024-11-07 Fred Gleason <fredg@paravelsystems.com>
+	* Tweaked the description of the 'UpstreamAddress=' parameter
+	in the '[Processor]' section of the lwsyslogger.conf(5) man page.

@@ -541,20 +541,19 @@
 	   </term>
 	   <listitem>
 	     <para>
-	       A string containing one or more IP addresses
-	       to be processed by this processor. Values should be in
-	       CIDR format, separated by commas.
-	       Default value is <userinput>::/0,0.0.0.0/0</userinput>.
-	       This parameter may be given multiple times.
+	       A string containing one or more IP address ranges
+	       to be processed by this processor, separated by commas.
+	       Values should be in CIDR format. This parameter may be given
+	       multiple times. Default value is the empty string.
 	     </para>
 	     <para>
 	       N.B. The address values given here will be compared to
 	       the address from which the message was transmitted to the
 	       system running
 	       <command>lwsyslogger</command><manvolnum>8</manvolnum>, as
-	       reported that host's network stack, <emphasis>not</emphasis>
-	       necessarily that of the system which actually originated the
-	       message.
+	       reported that by that host's network stack,
+	       <emphasis>not</emphasis> necessarily that of the system which
+	       actually originated the message.
 	       Specifically, scenarios in which message relays are employed
 	       may end up filtering against the address of the relay that
 	       forwarded the message rather than that of the originating
