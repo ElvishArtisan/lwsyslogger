@@ -99,3 +99,5 @@
 	of lwsyslogger.conf(5).
 2024-11-04 Fred Gleason <fredg@paravelsystems.com>
 	* Added a 'SendMail' processor.
+2024-11-07 Fred Gleason <fredg@paravelsystems.com>
+	* Updated the 'Sendmail' class to use Exemplar v1.3.0.
