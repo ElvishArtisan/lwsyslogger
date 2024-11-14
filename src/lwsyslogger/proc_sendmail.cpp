@@ -104,8 +104,8 @@ void ProcSendmail::processMessage(Message *msg,const QHostAddress &from_addr)
       return;
     }
   }
-  QString subj=msg->resolveWildcards(d_subject_line);
-  QString body=msg->resolveWildcards(messageTemplate());
+  QString subj=msg->resolveWildcards(d_subject_line,from_addr);
+  QString body=msg->resolveWildcards(messageTemplate(),from_addr);
   if(!SendMail(&err_msg,subj,body,d_from_address,d_to_addresses)) {
     lsyslog(Message::SeverityWarning,"sendmail failed [%s]",
 	    err_msg.toUtf8().constData());

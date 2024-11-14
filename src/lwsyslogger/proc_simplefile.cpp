@@ -95,7 +95,8 @@ void ProcSimpleFile::processMessage(Message *msg,const QHostAddress &from_addr)
   }
   if(d_base_file!=NULL) {
     fprintf(d_base_file,"%s\n",
-	    msg->resolveWildcards(messageTemplate()).toUtf8().constData());
+	    msg->resolveWildcards(messageTemplate(),from_addr).
+	    toUtf8().constData());
     fflush(d_base_file);
   }
 }

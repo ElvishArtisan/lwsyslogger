@@ -191,7 +191,8 @@ QByteArray Message::toByteArray(int version)
 }
 
 
-QString Message::resolveWildcards(const QString &fmt)
+QString Message::resolveWildcards(const QString &fmt,
+				  const QHostAddress &from_addr)
 {
   QString ret=fmt;
 
@@ -201,6 +202,7 @@ QString Message::resolveWildcards(const QString &fmt)
   ret.replace("%m",d_msg);                                // MSG
   ret.replace("%p",QString::asprintf("%u",priority()));   // PRIO
   ret.replace("%P",QString::asprintf("<%u>",priority())); // PRIO (decorated)
+  ret.replace("%r",from_addr.toString());                  // Relay Address
   ret.replace("%s",QString::asprintf("%u",d_severity));   // Severity (numeric)
   ret.replace("%S",Message::severityString(d_severity));  // Severity (symbolic)
   ret.replace("%t",d_timestamp.

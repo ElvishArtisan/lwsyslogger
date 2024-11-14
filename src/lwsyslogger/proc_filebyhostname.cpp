@@ -94,6 +94,7 @@ void ProcFileByHostname::processMessage(Message *msg,
     }
     d_files[pathname]=f;
   }
-  fprintf(f,"%s\n",msg->resolveWildcards(messageTemplate()).toUtf8().constData());
+  fprintf(f,"%s\n",msg->resolveWildcards(messageTemplate(),from_addr).
+	  toUtf8().constData());
   fflush(f);
 }

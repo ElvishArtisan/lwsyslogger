@@ -27,6 +27,7 @@
 
 #include <QByteArray>
 #include <QDateTime>
+#include <QHostAddress>
 #include <QString>
 
 #define SYSLOG_VERSION 1
@@ -61,7 +62,7 @@ class Message
   QString msgId() const;
   QString msg() const;
   QByteArray toByteArray(int version);
-  QString resolveWildcards(const QString &fmt);
+  QString resolveWildcards(const QString &fmt,const QHostAddress &from_addr);
   bool isDuplicateOf(const Message &msg) const;
   void clear();
   QString dump() const;
