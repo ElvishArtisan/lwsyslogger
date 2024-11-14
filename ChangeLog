@@ -114,3 +114,5 @@
 	* Incremented the package version to 0.6.1.
 2024-11-14 Fred Gleason <fredg@paravelsystems.com>
 	* Added an '%r' to the set of template wildcards for processors.
+2024-11-14 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 0.6.2.

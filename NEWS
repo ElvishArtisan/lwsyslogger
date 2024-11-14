@@ -1,6 +1,12 @@
 The NEWS file for the lwsyslogger package.
 
 -------------------------------------------------------------------------------
+v0.6.2 -- 14 November 2024
+
+Changes:
+   Processor log templates. Added '%r' (relay address) to the set of
+   available wildcards. See the lwsyslogger.conf(5) man page for details.
+-------------------------------------------------------------------------------
 v0.6.1 -- 14 November 2024
 
 Changes:
