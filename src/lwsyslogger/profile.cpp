@@ -18,7 +18,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, 
 //    Boston, MA  02111-1307  USA
 //
-// EXEMPLAR_VERSION: 1.2.1
+// EXEMPLAR_VERSION: 2.0.0
 //
 
 #include <stdio.h>
@@ -89,7 +89,6 @@ bool Profile::loadFile(const QString &filename,QString *err_msg)
   FILE *f=NULL;
   char data[1024];
   QString block_name;
-  QMultiMap<QString,QString> block_lines;
   
   if((f=fopen(filename.toUtf8(),"r"))==NULL) {
     if(err_msg!=NULL) {
@@ -103,6 +102,10 @@ bool Profile::loadFile(const QString &filename,QString *err_msg)
     values.push_back(QString::fromUtf8(data).trimmed());
   }
   addSource(values);
+  if(err_msg!=NULL) {
+    *err_msg=
+      QString::asprintf("loaded file \"%s\"",filename.toUtf8().constData());
+  }
 
   return true;
 }
@@ -132,6 +135,11 @@ int Profile::loadDirectory(const QString &dirpath,const QString &glob_template,
   QStringList filenames=dir.entryList(name_filters,QDir::Files,QDir::Name);
   for(int i=0;i<filenames.size();i++) {
     if(loadFile(dir.path()+"/"+filenames.at(i),&err_msg)) {
+      if(err_msgs!=NULL) {
+	err_msgs->push_back(QString::asprintf("loaded file \"%s/%s\"",
+				     dir.path().toUtf8().constData(),
+				     filenames.at(i).toUtf8().constData()));
+      }
       ret++;
     }
     else {
@@ -148,8 +156,18 @@ int Profile::loadDirectory(const QString &dirpath,const QString &glob_template,
 }
 
 
-int Profile::loadDirectory(const QString &glob_path,QStringList *err_msgs)
+int Profile::load(const QString &glob_path,QStringList *err_msgs)
 {
+  QString err_msg;
+  QFileInfo finfo(glob_path);
+  if(finfo.isFile()) {
+    int ret=loadFile(glob_path,&err_msg);
+    if(err_msgs!=NULL) {
+      err_msgs->push_back(err_msg);
+    }
+    return ret;
+  }
+
   QStringList f0=glob_path.split("/",Qt::KeepEmptyParts);
   QString glob_template=f0.last();
   f0.removeLast();
@@ -565,15 +583,20 @@ QString Profile::dump() const
   
   for(QMap<QString,QMap<QString,QStringList> >::const_iterator it0=
 	d_blocks.begin();it0!=d_blocks.end();it0++) {
-    ret+=QString::asprintf("[%s]\n",it0.key().toUtf8().constData());
+    QStringList section=it0.key().split("|");
+    ret+=QString::asprintf("[%s]\n",section.first().toUtf8().constData());
+    if(d_use_section_ids) {
+      ret+=QString::asprintf("Id=%s\n",section.last().toUtf8().constData());
+    }
     for(QMap<QString,QStringList>::const_iterator it1=it0.value().begin();
 	it1!=it0.value().end();it1++) {
       for(int i=0;i<it1.value().size();i++) {
-	ret+=QString::asprintf("%s=%s\n",it1.key().toUtf8().constData(),
-			       it1.value().at(i).toUtf8().constData());
+	if((!d_use_section_ids)||(it1.key()!="Id")) {
+	  ret+=QString::asprintf("%s=%s\n",it1.key().toUtf8().constData(),
+				 it1.value().at(i).toUtf8().constData());
+	}
       }
     }
-    ret+="\n";
   }
 
   return ret;
@@ -583,21 +606,26 @@ QString Profile::dump() const
 void Profile::ProcessBlock(const QString &name,
 			   const QMap<QString,QStringList> &lines)
 {
+  QString block_name=name;
+  if(d_use_section_ids) {
+    QStringList ids=lines.value("Id");
+    QString id=__PROFILE_DEFAULT_SECTION_ID;
+    if(ids.size()>0) {
+      id=ids.first();
+    }
+    block_name=name+__PROFILE_SECTION_ID_DELIMITER+id;
+  }
+
   if(!lines.isEmpty()) {
     QMap<QString,QStringList> block=
-      d_blocks.value(name,QMap<QString,QStringList>());
+      d_blocks.value(block_name,QMap<QString,QStringList>());
 
     for(QMap<QString,QStringList>::const_iterator it=lines.begin();
 	it!=lines.end();it++) {
       block[it.key()].append(it.value());
     }
     if(d_use_section_ids) {
-      QStringList ids=lines.value("Id");
-      QString id=__PROFILE_DEFAULT_SECTION_ID;
-      if(ids.size()>0) {
-	id=ids.first();
-      }
-      d_blocks[name+__PROFILE_SECTION_ID_DELIMITER+id]=block;
+      d_blocks[block_name]=block;
     }
     else {
       d_blocks[name]=block;

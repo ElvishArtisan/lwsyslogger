@@ -18,7 +18,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, 
 //    Boston, MA  02111-1307  USA
 //
-// EXEMPLAR_VERSION: 1.2.1
+// EXEMPLAR_VERSION: 2.0.0
 //
 
 #ifndef PROFILE_H
@@ -41,7 +41,7 @@ class Profile
   bool loadFile(const QString &filename,QString *err_msg=NULL);
   int loadDirectory(const QString &dirpath,const QString &glob_template,
 		    QStringList *err_msgs);
-  int loadDirectory(const QString &glob_path,QStringList *err_msgs);
+  int load(const QString &glob_path,QStringList *err_msgs);
   QStringList sections() const;
   QStringList sectionIds(const QString &section) const;
   QString stringValue(const QString &section,const QString &tag,

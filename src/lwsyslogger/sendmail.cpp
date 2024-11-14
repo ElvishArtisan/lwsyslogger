@@ -17,7 +17,7 @@
 //   License along with this program; if not, write to the Free Software
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-// EXEMPLAR_VERSION: 1.3.0
+// EXEMPLAR_VERSION: 2.0.0
 //
 
 #include <QObject>
