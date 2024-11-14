@@ -103,6 +103,7 @@ MainObject::MainObject(QObject *parent)
   QDateTime rotate_logfiles_datetime=QDateTime::currentDateTime();
   bool rotate_logfiles=false;
   bool dry_run=false;
+  bool dump_config=false;
   QString err_msg;
   QStringList err_msgs;
   
@@ -121,6 +122,10 @@ MainObject::MainObject(QObject *parent)
     }
     if(cmd->key(i)=="--dry-run") {
       dry_run=true;
+      cmd->setProcessed(i,true);
+    }
+    if(cmd->key(i)=="--dump-config") {
+      dump_config=true;
       cmd->setProcessed(i,true);
     }
     if(cmd->key(i)=="--no-local-syslog") {
@@ -151,16 +156,15 @@ MainObject::MainObject(QObject *parent)
   // Create Configuration Context
   //
   d_profile=new Profile(true);
-  if(!d_profile->loadFile(config_filename)) {
-    fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\"\n",
-	    config_filename.toUtf8().constData());
+  if(d_profile->load(config_filename,&err_msgs)<=0) {
+    fprintf(stderr,"lwsyslogger: cannot open configuration file \"%s\" [%s]\n",
+	    config_filename.toUtf8().constData(),err_msg.toUtf8().constData());
     exit(1);
   }
   QStringList config_dirs=
     d_profile->stringValues("Global","Default","IncludeConfig");
   for(int i=0;i<config_dirs.size();i++) {
-    printf("trying[%d]: %s\n",i,config_dirs.at(i).toUtf8().constData());
-    int num=d_profile->loadDirectory(config_dirs.at(i),&err_msgs);
+    int num=d_profile->load(config_dirs.at(i),&err_msgs);
     if(num<0) {
       fprintf(stderr,
 	 "lwsyslogger: failed attempting to read configuration from \"%s\":\n",
@@ -173,6 +177,13 @@ MainObject::MainObject(QObject *parent)
     }
     LocalSyslog(Message::SeverityDebug,"loaded %d configurations from \"%s\"",
 		num,config_dirs.at(i).toUtf8().constData());
+  }
+  if(dump_config) {
+    for(int i=0;i<err_msgs.size();i++) {
+      fprintf(stderr,"%s\n",err_msgs.at(i).toUtf8().constData());
+    }
+    printf("%s\n",d_profile->dump().toUtf8().constData());
+    exit(0);
   }
   
   //

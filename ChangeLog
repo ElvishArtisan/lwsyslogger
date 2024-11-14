@@ -110,3 +110,5 @@
 	in the '[Processor]' section of the lwsyslogger.conf(5) man page.
 2024-11-14 Fred Gleason <fredg@paravelsystems.com>
 	* Updated Exemplar classes to use v2.0.0.
+2024-11-14 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 0.6.1.

@@ -1,6 +1,14 @@
 The NEWS file for the lwsyslogger package.
 
 -------------------------------------------------------------------------------
+v0.6.1 -- 14 November 2024
+
+Changes:
+   New Processors. Added 'SendMail' and 'UDP'.
+
+   Modular Configuration. Added an 'IncludeConfig=' parameter to the
+   '[Global]' section of lwsyslogger.conf(5) to permit modular configuration.
+-------------------------------------------------------------------------------
 v0.5.0 -- 1 November 2024
 
 Changes:
