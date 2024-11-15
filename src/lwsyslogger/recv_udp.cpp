@@ -68,7 +68,7 @@ void RecvUdp::readyReadData()
   QNetworkDatagram dg=d_socket->receiveDatagram();
   Message *msg=new Message(dg.data());
   if(msg->isValid()) {
-    emit messageReceived(msg,dg.senderAddress());
+    forwardMessage(msg,dg.senderAddress());
   }
   delete msg;
 }

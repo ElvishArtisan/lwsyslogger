@@ -84,3 +84,16 @@ Receiver::Type Receiver::typeFromString(const QString &str)
   
   return Receiver::TypeLast;
 }
+
+
+void Receiver::forwardMessage(Message *msg,const QHostAddress &from_addr)
+{
+  bool ok=false;
+  uint32_t v4_addr=from_addr.toIPv4Address(&ok);
+  if(ok) {
+    emit messageReceived(msg,QHostAddress(v4_addr));
+  }
+  else {
+    emit messageReceived(msg,from_addr);
+  }
+}

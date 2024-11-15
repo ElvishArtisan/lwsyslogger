@@ -46,6 +46,7 @@ class Receiver : public QObject
   void messageReceived(Message *msg,const QHostAddress &from_addr);
 
  protected:
+  void forwardMessage(Message *msg,const QHostAddress &from_addr);
   Profile *profile() const;
   void lsyslog(Message::Severity severity,const char *fmt,...) const;
 
