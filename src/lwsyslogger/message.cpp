@@ -455,21 +455,28 @@ void Message::ParseRfc5424(const QByteArray &data)
 
 void Message::ParseRfc3164(const QByteArray &data)
 {
-  //
-  // Traditional BSD-Style Format
-  //
+  int msg_offset=0;
 
   //
-  // Hack to fudge a year for a BSD-style timestamp
+  // Hack to fudge a year for BSD-style timestamps
   // WARNING: This races for times near the year rollover!
   //
   QStringList f0=QString(data.mid(0,15)).split(" ",Qt::SkipEmptyParts);
   QString year=QDate::currentDate().toString("yyyy");
-  d_timestamp=
-    QDateTime::fromString(year+" "+f0.join(" "),"yyyy MMM d hh:mm:ss");
+  if(f0.size()==3) {
+    d_timestamp=
+      QDateTime::fromString(year+" "+f0.join(" "),"yyyy MMM d hh:mm:ss");
+    msg_offset=16;
+  }
+  else {
+    // Some message sources --e.g. Gen1 Axia gear-- don't send timestamps,
+    // so fudge one of our own.
+    d_timestamp=QDateTime::currentDateTime();
+    msg_offset=0;
+  }
 
   if(d_timestamp.isValid()) {
-    QStringList f1=QString::fromUtf8(data.right(data.size()-16)).
+    QStringList f1=QString::fromUtf8(data.right(data.size()-msg_offset)).
       split(" ",Qt::KeepEmptyParts);
     d_host_name=f1.first().trimmed();
     f1.removeFirst();
