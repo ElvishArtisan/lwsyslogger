@@ -122,3 +122,5 @@
 2024-11-15 Fred Gleason <fredg@paravelsystems.com>
 	* Modified lwsyslogger(8) to handle BSD-style log messages with no
 	timestamps.
+2024-11-15 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 0.6.3.
